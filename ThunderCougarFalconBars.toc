@@ -1,0 +1,11 @@
+## Interface: 40000
+## Title: ThunderCougarFalconBars
+## Notes: One word: ThunderCougarFalconBars
+## Author: Tuller
+## Version: 0.0.waffles
+## SavedVariables: ThunderCougarFalconBarsDB, ThunderCougarFalconBarsVersion
+## OptionalDeps: Ace3, LibKeyBound-1.0, ButtonFacade, FlyPaper
+embeds.xml
+localization.xml
+core.xml
+ThunderCougarFalconBars.lua
