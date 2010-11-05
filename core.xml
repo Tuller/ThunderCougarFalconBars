@@ -1,4 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="core\majorTom.lua"/>
 	<Script file="core\bar.lua"/>
 	<Script file="core\buttonBar.lua"/>
 	<Script file="core\dragFrame.lua"/>
