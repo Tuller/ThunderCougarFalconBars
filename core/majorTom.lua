@@ -4,7 +4,7 @@
 --]]
 
 local controller = CreateFrame('Frame', nil, UIParent, 'SecureHandlerStateTemplate')
-controller:SetAllPoints(UIParent)
+controller:SetAllPoints(controller:GetParent())
 
 --main controller state
 controller:SetAttribute('_onstate-groundControl', [[

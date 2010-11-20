@@ -3,7 +3,9 @@
 	<Script file="core\bar.lua"/>
 	<!--
 	<Script file="core\buttonBar.lua"/>
+	-->
 	<Script file="core\dragFrame.lua"/>
+	<!--
 	<Script file="core\scaleButton.lua"/>
 	<Script file="core\hoverMenu.lua"/>
 	-->
