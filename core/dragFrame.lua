@@ -14,15 +14,24 @@ function DragFrame:New(owner)
 	local f = self:Bind(CreateFrame('Button', nil, owner:GetParent()))
 	f:SetAttribute('state-enable', f:GetAttribute('state-enable'))
 	f:SetAttribute('state-lock', f:GetAttribute('state-lock'))
-	f.owner = owner
-	owner.drag = f
+	f.owner = owner; owner.drag = f
+	f.scaler = TCFB.ScaleButton:New(f)
 
 	f:EnableMouseWheel(true)
 	f:SetClampedToScreen(true)
 	f:SetFrameStrata(owner:GetFrameStrata())
 	f:SetAllPoints(owner)
 	f:SetFrameLevel(owner:GetFrameLevel() + 5)
-
+	
+	f:SetBackdrop{
+		bgFile   = 	[[Interface\ChatFrame\ChatFrameBackground]],
+		edgeFile = 	[[Interface\ChatFrame\ChatFrameBackground]], 
+		edgeSize = 	2,
+		insets   = 	{ left = 2, right = 2, top = 2, bottom = 2 }, 
+	}
+	f:SetBackdropBorderColor(1, 1, 1)
+	
+--[[	
 	local bg = f:CreateTexture(nil, 'BACKGROUND')
 	bg:SetTexture(1, 1, 1, 0.4)
 	bg:SetAllPoints(f)
@@ -32,6 +41,7 @@ function DragFrame:New(owner)
 	t:SetTexture(0.2, 0.3, 0.4, 0.5)
 	t:SetAllPoints(f)
 	f:SetHighlightTexture(t)
+--]]
 
 	f:SetNormalFontObject('GameFontNormalLarge')
 	f:SetText(owner:GetAttribute('id'))
@@ -133,15 +143,15 @@ end
 function DragFrame:UpdateColor()
 	if self.owner:Get('show') then
 		if self.owner:Get('anchor') then
-			self:GetNormalTexture():SetTexture(0, 0.2, 0.2, 0.4)
+			self:SetBackdropColor(0, 0.2, 0.2, 0.6)
 		else
-			self:GetNormalTexture():SetTexture(0, 0.5, 0.7, 0.4)
+			self:SetBackdropColor(0, 0.5, 0.7, 0.4)
 		end
 	else
 		if self.owner:Get('anchor') then
-			self:GetNormalTexture():SetTexture(0.1, 0.1, 0.1, 0.4)
+			self:SetBackdropColor(0.1, 0.1, 0.1, 0.4)
 		else
-			self:GetNormalTexture():SetTexture(0.5, 0.5, 0.5, 0.4)
+			self:SetBackdropColor(0.5, 0.5, 0.5, 0.4)
 		end
 	end
 end

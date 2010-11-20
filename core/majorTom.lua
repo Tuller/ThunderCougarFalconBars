@@ -58,12 +58,13 @@ controller:SetAttribute('getFrame', [[
 	if frameId then
 		return self:GetFrameRef('frame-' .. frameId)
 	end
-]]) 
+]])
 
 controller:SetAttribute('placeFrame', [[
 	local frameId, point, relFrameId, relPoint, xOff, yOff = ...
-	local frame, relFrame = self:GetFrameRef('frame-' .. frameId), self:GetFrameRef('frame-' .. relFrameId)
-	
+	local frame = self:GetFrameRef('frame-' .. frameId)
+	local relFrame = self:GetFrameRef('frame-' .. relFrameId)
+
 	if frame and relFrame then
 		frame:SetPoint(point, relFrame, relPoint, xOff, yOff)
 		return true
@@ -95,7 +96,6 @@ TCFB.MajorTom = {
 	setStateDriver = function(self, values)
 		self.stateDriver = stateDriver
 		RegisterStateDriver(controller, 'groundControl', values)
-		--controller:SetAttribute('state-groundControl', SecureCmdOptionParse(values))
 	end,
 
 	getStateDriver = function(self, values)
@@ -115,7 +115,7 @@ TCFB.MajorTom = {
 	setLock = function(self, enable)
 		controller:SetAttribute('state-lock', enable and true or false)
 	end,
-	
+
 	getLock = function(self)
 		return controller:GetAttribute('state-lock')
 	end,

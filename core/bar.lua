@@ -310,3 +310,30 @@ end
 function Bar:SaveRelPosition()
 	self:Set('point', string.join(DELIMITER, self:GetRelPosition()))
 end
+
+--[[ Scaling ]]--
+
+function Bar:GetScaledCoords(scale)
+	local ratio = self:Get('scale') / scale
+	return (self:GetLeft() or 0) * ratio, (self:GetTop() or 0) * ratio
+end
+
+function Bar:SetFrameScale(scale, scaleAnchored)
+	local x, y =  self:GetScaledCoords(scale)
+
+	self:Set('scale', scale)
+
+	if not self:Get('anchor') then
+		self:ClearAllPoints()
+		self:SetPoint('TOPLEFT', self:GetParent(), 'BOTTOMLEFT', x, y)
+		self:SaveRelPosition()
+	end
+
+	if scaleAnchored then
+		-- for _,f in self:GetAll() do
+			-- if f:GetAnchor() == self then
+				-- f:SetFrameScale(scale, true)
+			-- end
+		-- end
+	end
+end
