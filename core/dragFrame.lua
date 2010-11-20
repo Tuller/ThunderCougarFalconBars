@@ -1,14 +1,19 @@
 --[[
-	DragFrame.lua
-		A Dominos frame component that controls frame movement
+	dragFrame.lua
+		A frame component that controls frame movement
 --]]
 
-local DragFrame = LibStub('Classy-1.0'):New('Button')
 local TCFB = select(2, ...)
+local DragFrame = LibStub('Classy-1.0'):New('Button')
 TCFB.DragFrame = DragFrame
+
+local L = LibStub('AceLocale-3.0'):GetLocale('ThunderCougarFalconBars')
+local round = function(x) return floor(x + 0.5) end
 
 function DragFrame:New(owner)
 	local f = self:Bind(CreateFrame('Button', nil, owner:GetParent()))
+	f:SetAttribute('state-enable', f:GetAttribute('state-enable'))
+	f:SetAttribute('state-lock', f:GetAttribute('state-lock'))
 	f.owner = owner
 	owner.drag = f
 
@@ -33,6 +38,7 @@ function DragFrame:New(owner)
 
 	f:RegisterForClicks('AnyUp')
 	f:RegisterForDrag('LeftButton')
+	f:SetScript('OnAttributeChanged', self.OnAttributeChanged)
 	f:SetScript('OnMouseDown', self.StartMoving)
 	f:SetScript('OnMouseUp', self.StopMoving)
 	f:SetScript('OnMouseWheel', self.OnMouseWheel)
@@ -44,6 +50,15 @@ function DragFrame:New(owner)
 	return f
 end
 
+function DragFrame:OnAttributeChanged(...)
+	local enabled = self:GetAttribute('state-enable')
+	local locked = self:GetAttribute('state-lock')
+	if enabled and not locked then
+		self:Show()
+	else
+		self:Hide()
+	end
+end
 
 function DragFrame:OnEnter()
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMLEFT')
@@ -58,13 +73,13 @@ function DragFrame:OnEnter()
 		-- GameTooltip:AddLine(L.ShowConfig)
 	-- end
 
-	-- if self.owner:IsShown() then
-		-- GameTooltip:AddLine(L.HideBar)
-	-- else
-		-- GameTooltip:AddLine(L.ShowBar)
-	-- end
+	if self.owner:Get('show') then
+		GameTooltip:AddLine(L.HideBar)
+	else
+		GameTooltip:AddLine(L.ShowBar)
+	end
 
-	-- GameTooltip:AddLine(format(L.SetAlpha, ceil(self.owner:GetFrameAlpha()*100)))
+	GameTooltip:AddLine(format(L.SetAlpha, round(self.owner:Get('alpha') * 100)))
 	GameTooltip:Show()
 end
 
@@ -93,36 +108,37 @@ function DragFrame:StopMoving()
 end
 
 function DragFrame:OnMouseWheel(arg1)
-	-- local newAlpha = min(max(self.owner:GetAlpha() + (arg1 * 0.1), 0), 1)
-	-- if newAlpha ~= self.owner:GetAlpha() then
-		-- self.owner:SetFrameAlpha(newAlpha)
-		-- self:OnEnter()
-	-- end
+	local alpha = self.owner:Get('alpha')
+	local newAlpha = min(max(alpha + (arg1 * 0.05), 0), 1)
+	if newAlpha ~= alpha then
+		self.owner:Set('alpha', newAlpha)
+		self:OnEnter()
+	end
 end
 
 function DragFrame:OnClick(button)
-	-- if button == 'RightButton' then
-		-- if IsShiftKeyDown() then
-			-- self.owner:ToggleFrame()
+	if button == 'RightButton' then
+		if IsShiftKeyDown() then
+			self.owner:Set('show', not self.owner:Get('show'))
 		-- else
 			-- self.owner:ShowMenu()
-		-- end
-	-- elseif button == 'MiddleButton' then
-		-- self.owner:ToggleFrame()
-	-- end
-	-- self:OnEnter()
+		end
+	elseif button == 'MiddleButton' then
+		self.owner:Set('show', not self.owner:Get('show'))
+	end
+	self:OnEnter()
 end
 
 --updates the DragFrame button color of a given bar if its attached to another bar
 function DragFrame:UpdateColor()
-	if self.owner:IsShown() then
-		if self.owner:GetAnchor() then
+	if self.owner:Get('show') then
+		if self.owner:Get('anchor') then
 			self:GetNormalTexture():SetTexture(0, 0.2, 0.2, 0.4)
 		else
 			self:GetNormalTexture():SetTexture(0, 0.5, 0.7, 0.4)
 		end
 	else
-		if self.owner:GetAnchor() then
+		if self.owner:Get('anchor') then
 			self:GetNormalTexture():SetTexture(0.1, 0.1, 0.1, 0.4)
 		else
 			self:GetNormalTexture():SetTexture(0.5, 0.5, 0.5, 0.4)

@@ -40,11 +40,6 @@ controller:SetAttribute('_onstate-lock', [[
 controller:SetAttribute('addFrame', [[
 	local f = self:GetFrameRef('addFrame')
 
-	if not myFrames then
-		myFrames = table.new()
-	end
-	myFrames[f:GetAttribute('id')] = f
-
 	f:SetParent(self)
 	f:SetAttribute('state-main', self:GetAttribute('state-main'))
 	f:SetAttribute('state-lock', self:GetAttribute('state-lock'))
@@ -58,11 +53,30 @@ controller:SetAttribute('remFrame', [[
 	end
 ]])
 
+controller:SetAttribute('getFrame', [[
+	local frameId = ...
+	if frameId then
+		return self:GetFrameRef('frame-' .. frameId)
+	end
+]]) 
+
+controller:SetAttribute('placeFrame', [[
+	local frameId, point, relFrameId, relPoint, xOff, yOff = ...
+	local frame, relFrame = self:GetFrameRef('frame-' .. frameId), self:GetFrameRef('frame-' .. relFrameId)
+	
+	if frame and relFrame then
+		frame:SetPoint(point, relFrame, relPoint, xOff, yOff)
+		return true
+	end
+	return false
+]])
+
 local TCFB = select(2, ...)
 TCFB.MajorTom = {
 	--add frame to state control
 	addFrame = function(self, frame)
 		controller:SetFrameRef('addFrame', frame)
+		controller:SetFrameRef('frame-' .. frame:GetAttribute('id'), frame)
 		controller:Execute([[
 			self:RunAttribute('addFrame', self:GetFrameRef('addFrame'))
 		]])
@@ -71,6 +85,7 @@ TCFB.MajorTom = {
 	--remove frame from state control
 	removeFrame = function(self, frame)
 		controller:SetFrameRef('remFrame', frame)
+		controller:SetFrameRef('frame-' .. frame:GetAttribute('id'), nil)
 		controller:Execute([[
 			self:RunAttribute('remFrame', self:GetFrameRef('remFrame'))
 		]])
@@ -99,5 +114,9 @@ TCFB.MajorTom = {
 	--enables|disables the lock state
 	setLock = function(self, enable)
 		controller:SetAttribute('state-lock', enable and true or false)
+	end,
+	
+	getLock = function(self)
+		return controller:GetAttribute('state-lock')
 	end,
 }

@@ -1,86 +1,74 @@
 --[[
-	frame.lua
-		A dominos frame, a generic container object
+	bar.lua
+		A movable container object
 --]]
 
 local Bar = LibStub('Classy-1.0'):New('Frame')
 local TCFB = select(2, ...)
 TCFB.Bar = Bar
 
+local DELIMITER = ';' --compact settings delimiter
 local frames = {}
 
-local function frame_Create(id, o)
+local function frame_Create(id)
 	local frame = CreateFrame('Frame', nil, UIParent, 'SecureHandlerStateTemplate')
 	frame:SetClampedToScreen(true)
 	frame:SetMovable(true)
-
 	frame:SetAttribute('id', id)
-	frame:SetFrameRef("uiParent", UIParent)
 
 	frame:SetAttribute('_childupdate', [[
 		self:SetAttribute(scriptid, message)
 	]])
 
 	frame:SetAttribute('_onstate-main', [[
-		self:RunAttribute('lodas', string.split(',', self:GetAttribute('loadAttributes')))
+		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
 	]])
 
 	frame:SetAttribute('_onstate-lock', [[
-		if newstate then
-			self:GetFrameRef('dragFrame'):Hide()
-		else
-			self:GetFrameRef('dragFrame'):Show()
-		end
+		self:ChildUpdate('state-lock', newstate)
+		self:GetFrameRef('dragFrame'):SetAttribute('state-lock', newstate)
 	]])
 
 	-- load many state attributes
 	frame:SetAttribute('lodas', [[
-		local state = self:GetAttribute('state-main')
+		local state = self:GetAttribute('state-main') or 'default'
 
 		for i = 1, select('#', ...) do
-			local atr = (select(i, ...))
-
-			local oldVal = self:GetAttribute('state-' .. atr)
-			local newVal = self:RunAttribute('geta', atr, state)
-			if oldVal ~= newVal then
-				self:SetAttribute('state-' .. atr, newVal)
-			end
+			local id = select(i, ...)
+			self:RunAttribute('loda', id, state)
 		end
 	]])
 
-	--load a single state attribute
 	frame:SetAttribute('loda', [[
-		local atr = (select(i, ...))
-		local oldVal = self:GetAttribute('state-' .. atr)
-		local newVal = self:RunAttribute('geta', atr, state)
+		local id, state = ...
+		state = state or 'default'
+
+		local oldVal = self:GetAttribute('state-' .. id)
+		local newVal = self:RunAttribute('geta', id, state)
 		if oldVal ~= newVal then
-			self:SetAttribute('state-' .. atr, newVal)
-		end
-	]])
-
-	frame:SetAttribute('seta', [[
-		local atr, newValue, state = ...
-		state = state or self:GetAttribute('state-main')
-
-		local oldValue = self:RunAttribute('geta', atr, state)
-		if oldValue ~= newValue then
-			self:SetAttribute(atr .. '-' .. state, newVal)
-			self:CallMethod('SaveAttribute', atr, state, newVal)
+			self:SetAttribute('state-' .. id, newVal)
 		end
 	]])
 
 	frame:SetAttribute('geta', [[
-		local atr, state = ...
+		local id, state = ...
+		state = state or 'default'
 
-		local v = self:GetAttribute(atr .. '-' .. state)
+		local v = self:GetAttribute(id .. '-' .. state)
 		if v == nil then
-			v = self:GetAttribute(atr .. '-default')
+			return self:GetAttribute(id .. '-default')
 		end
 		return v
 	]])
 
+	frame:SetAttribute('_onstate-enable', [[
+		self:ChildUpdate('state-enable', newstate)
+		self:GetFrameRef('dragFrame'):SetAttribute('state-enable', newstate)
+	]])
+
 	frame:SetAttribute('_onstate-show', [[
-		if newstate then
+		local show = newstate
+		if show then
 			self:Show()
 		else
 			self:Hide()
@@ -88,18 +76,47 @@ local function frame_Create(id, o)
 	]])
 
 	frame:SetAttribute('_onstate-alpha', [[
-		self:SetAlpha(newstate)
+		local alpha = newstate
+		self:SetAlpha(alpha)
 	]])
 
 	frame:SetAttribute('_onstate-scale', [[
-		self:SetScale(newstate)
-		self:GetFrameRef('dragFrame'):SetScale(newstate)
+		local scale = newstate
+		self:SetScale(scale)
+		self:GetFrameRef('dragFrame'):SetScale(scale)
 	]])
 
 	frame:SetAttribute('_onstate-point', [[
-		local point, xOff, yOff = string.split(';', newstate)
+		self:RunAttribute('reposition')
+	]])
+
+	frame:SetAttribute('_onstate-anchor', [[
+		self:RunAttribute('reposition')
+		self:GetFrameRef('dragFrame'):CallMethod('UpdateColor')
+	]])
+
+	frame:SetAttribute('reposition', [[
 		self:ClearAllPoints()
-		self:SetPoint(point, self:GetParent(), point, xOff, yOff)
+
+		local anchor = self:GetAttribute('state-anchor')
+		if anchor then
+			local point, frameId, relPoint, x, y = string.split(';', anchor)
+			if self:GetParent():RunAttribute('placeFrame', self:GetAttribute('id'), point, frameId, relPoint, x, y) then
+				self:CallMethod('SetUserPlaced', true)
+				return
+			end
+		end
+
+		local place = self:GetAttribute('state-point')
+		if place then
+			local point, x, y = string.split(';', place)
+			self:SetPoint(point, self:GetParent(), point, x, y)
+			self:CallMethod('SetUserPlaced', true)
+			return
+		end
+
+		self:SetPoint('CENTER', self:GetParent(), 'CENTER', 0, 0)
+		self:CallMethod('SetUserPlaced', false)
 	]])
 
 	return frame
@@ -107,11 +124,11 @@ end
 
 function Bar:New(frameId, settings)
 	local f = self:Bind(frame_Create(frameId))
-	f:SetAttribute('loadAttributes', 'show,scale,alpha,point')
+	f:SetAttribute('myAttributes', 'enable,show,scale,alpha,point,anchor')
 	f:SetFrameRef('dragFrame', TCFB.DragFrame:New(f))
 	f.sets = settings
 
-	f:LoadAttributes()
+	f:LoadSettings()
 	TCFB.MajorTom:addFrame(f)
 	frames[frameId] = f
 
@@ -122,23 +139,29 @@ function Bar:Get(frameId)
 	return frames[frameId]
 end
 
+function Bar:GetAll()
+	return pairs(frames)
+end
 
---attributes
-function Bar:SetAtr(attribute, newValue, state)
+
+--[[ state settings ]]--
+
+function Bar:Set(attribute, newValue, state)
 	state = state or self:GetAttribute('state-main')
 
-	local oldValue = self:GetAtr(attribute, state)
+	local oldValue = self:Get(attribute, state)
 	if oldValue ~= newValue then
 		self:SetAttribute(attribute .. '-' .. state, newValue)
-		self:SaveAttribute(attribute, newValue, state)
-		
+		self:Save(attribute, newValue, state)
+
+		--if we've adjusted a current attribute, then update it
 		if state == self:GetAttribute('state-main') then
 			self:SetAttribute('state-' .. attribute, newValue)
 		end
 	end
 end
 
-function Bar:GetAtr(attribute, state)
+function Bar:Get(attribute, state)
 	state = state or self:GetAttribute('state-main')
 
 	local v = self:GetAttribute(attribute .. '-' .. state)
@@ -148,7 +171,7 @@ function Bar:GetAtr(attribute, state)
 	return v
 end
 
-function Bar:SaveAttribute(attribute, value, state)
+function Bar:Save(attribute, value, state)
 	state = state or self:GetAttribute('state-main')
 
 	local stateSets = self.sets[state]
@@ -158,10 +181,10 @@ function Bar:SaveAttribute(attribute, value, state)
 	stateSets[attribute] = value
 end
 
-function Bar:LoadAttributes()
+function Bar:LoadSettings()
 	for state, attributes in pairs(self.sets) do
 		for attribute, value in pairs(attributes) do
-			self:SetAtr(attribute, value, state)
+			self:Set(attribute, value, state)
 		end
 	end
 end
@@ -216,64 +239,44 @@ function Bar:StickToEdge()
 
 	--save this junk if we've done something
 	if changed then
-		self:SetAtr('point', string.join(';', point, x, y))
-		return true
+		self:Set('point', string.join(DELIMITER, point, x, y))
 	end
 end
 
 function Bar:Stick()
+	self:SaveRelPosition()
 	self:ClearAnchor()
 
 	--only do sticky code if the alt key is not currently down
 	if not IsAltKeyDown() then
-		-- --try to stick to a bar, then try to stick to a screen edge
-		-- for _, f in self:GetAll() do
-			-- if f ~= self then
-				-- local point = FlyPaper.Stick(self, f, self.stickyTolerance)
-				-- if point then
-					-- self:SetAnchor(f, point)
-					-- break
-				-- end
-			-- end
-		-- end
+		local anchored = false
 
-		-- if not self.sets.anchor then
+		--try to stick to a bar, then try to stick to a screen edge
+		for _, f in self:GetAll() do
+			if f ~= self then
+				local point = FlyPaper.Stick(self, f, self.stickyTolerance)
+				if point then
+					self:SetAnchor(self:GetPoint())
+					anchored = true
+					break
+				end
+			end
+		end
+
+		if not anchored then
 			self:StickToEdge()
-		-- end
+		end
 	end
 
-	self:SavePosition()
 	self.drag:UpdateColor()
 end
 
--- function Bar:Reanchor()
-	-- local f, point = self:GetAnchor()
-	-- if not(f and FlyPaper.StickToPoint(self, f, point)) then
-		-- self:ClearAnchor()
-		-- if not self:Reposition() then
-			-- self:ClearAllPoints()
-			-- self:SetPoint('CENTER')
-		-- end
-	-- else
-		-- self:SetAnchor(f, point)
-	-- end
-	-- self.drag:UpdateColor()
--- end
-
-function Bar:SetAnchor(anchor, point)
---	self.sets.anchor = anchor.id .. point
+function Bar:SetAnchor(point, frame, relPoint, x, y)
+	self:Set('anchor', string.join(DELIMITER, point, frame:GetAttribute('id'), relPoint, x, y))
 end
 
 function Bar:ClearAnchor()
---	self.sets.anchor = nil
-end
-
-function Bar:GetAnchor()
-	-- local anchorString = self.sets.anchor
-	-- if anchorString then
-		-- local pointStart = #anchorString - 1
-		-- return self:Get(anchorString:sub(1, pointStart - 1)), anchorString:sub(pointStart)
-	-- end
+	self:Set('anchor', false)
 end
 
 
@@ -304,22 +307,6 @@ function Bar:GetRelPosition()
 	return vHalf..hHalf, dx, dy
 end
 
-function Bar:SavePosition()
-	self:SetAtr('point', string.join(';', self:GetRelPosition()))
-	self:SetUserPlaced(true)
+function Bar:SaveRelPosition()
+	self:Set('point', string.join(DELIMITER, self:GetRelPosition()))
 end
-
---place the frame at it's saved position
--- function Bar:Reposition()
-	-- self:Rescale()
-
-	-- local sets = self.sets
-	-- local point, x, y = sets.point, sets.x, sets.y
-
-	-- if point then
-		-- self:ClearAllPoints()
-		-- self:SetPoint(point, x, y)
-		-- self:SetUserPlaced(true)
-		-- return true
-	-- end
--- end
