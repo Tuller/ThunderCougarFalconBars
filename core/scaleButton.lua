@@ -13,7 +13,9 @@ function ScaleButton:New(parent)
 	f:SetPoint('BOTTOMRIGHT', parent)
 	f:SetSize(16, 16)
 
-	f:SetNormalTexture([[Interface\RaidFrame\Raid-Move-Up]])
+	f:SetNormalTexture([[Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up]])
+	f:SetPushedTexture([[Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down]])
+	f:SetHighlightTexture([[Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight]])
 
 	f:SetScript('OnEnter', self.OnEnter)
 	f:SetScript('OnLeave', self.OnLeave)
@@ -38,20 +40,20 @@ function ScaleButton:OnUpdate(elapsed)
 
 	local scale = max(min(max(wScale, hScale), 1.2), 0.8)
 	local newScale = min(max(frame:GetScale() * scale, 0.5), 1.5)
-	frame:SetFrameScale(newScale)
+	frame:SetFrameScale(newScale, IsShiftKeyDown())
 end
 
 function ScaleButton:StartScaling()
 	if not IsAltKeyDown() then
-		self.isScaling = true
-		self:GetParent():LockHighlight()
+		self:GetParent():SetHighlight(true)
+		self:LockHighlight()
 		self:SetScript('OnUpdate', self.OnUpdate)
 	end
 end
 
 function ScaleButton:StopScaling()
-	self.isScaling = nil
-	self:GetParent():UnlockHighlight()
+	self:GetParent():SetHighlight(nil)
+	self:UnlockHighlight()
 	self:SetScript('OnUpdate', nil)
 end
 

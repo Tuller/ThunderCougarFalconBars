@@ -28,22 +28,22 @@ do
 				show = true,
 				alpha = 1,
 				scale = 1,
-				point = 'CENTER;0;0',
+				point = ('CENTER;0;%d'):format((id - 1) * -36),
 				anchor = false,
 			},
 			alt = {
 				enable = id < 4,
 				alpha = 0.5,
 				scale = 1.5,
-				point = 'TOPLEFT;0;0',
+				point = ('TOPLEFT;0;%d'):format((id - 1) * -36),
 				anchor = false,
 			}
 		})
 		bar:SetSize(400, 36)
 
-		local bg = bar:CreateTexture(nil, 'BACKGROUND')
-		bg:SetAllPoints(bar)
-		bg:SetTexture(0, 0.5, 0, 0.5)
-		bar.bg = bg
+		-- local bg = bar:CreateTexture(nil, 'BACKGROUND')
+		-- bg:SetAllPoints(bar)
+		-- bg:SetTexture(0, 0.5, 0, 0.5)
+		-- bar.bg = bg
 	end
 end

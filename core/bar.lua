@@ -73,6 +73,7 @@ local function frame_Create(id)
 		else
 			self:Hide()
 		end
+		self:GetFrameRef('dragFrame'):CallMethod('UpdateColor')
 	]])
 
 	frame:SetAttribute('_onstate-alpha', [[
@@ -135,12 +136,32 @@ function Bar:New(frameId, settings)
 	return f
 end
 
-function Bar:Get(frameId)
-	return frames[frameId]
-end
+
+--[[ frame access ]]--
+
 
 function Bar:GetAll()
 	return pairs(frames)
+end
+
+function Bar:GetBar(frameId)
+	return frames[tonumber(frameId) or frameId]
+end
+
+function Bar:ForAll(method, ...)
+	local action = type(method) == 'string' and self[method] or method
+	for _,f in self:GetAll() do
+		action(f, ...)
+	end
+end
+
+function Bar:ForDocked(method, ...)
+	local action = type(method) == 'string' and self[method] or method
+	for _,f in self:GetAll() do
+		if select(2, f:GetAnchor()) == self then
+			action(f, ...)
+		end
+	end
 end
 
 
@@ -275,6 +296,14 @@ function Bar:SetAnchor(point, frame, relPoint, x, y)
 	self:Set('anchor', string.join(DELIMITER, point, frame:GetAttribute('id'), relPoint, x, y))
 end
 
+function Bar:GetAnchor()
+	local anchor = self:Get('anchor')
+	if anchor then
+		local point, frameId, relPoint, x, y = string.split(';', anchor)
+		return point, self:GetBar(frameId), relPoint, x, y
+	end
+end
+
 function Bar:ClearAnchor()
 	self:Set('anchor', false)
 end
@@ -318,7 +347,7 @@ function Bar:GetScaledCoords(scale)
 	return (self:GetLeft() or 0) * ratio, (self:GetTop() or 0) * ratio
 end
 
-function Bar:SetFrameScale(scale, scaleAnchored)
+function Bar:SetFrameScale(scale, scaleDocked)
 	local x, y =  self:GetScaledCoords(scale)
 
 	self:Set('scale', scale)
@@ -329,11 +358,7 @@ function Bar:SetFrameScale(scale, scaleAnchored)
 		self:SaveRelPosition()
 	end
 
-	if scaleAnchored then
-		-- for _,f in self:GetAll() do
-			-- if f:GetAnchor() == self then
-				-- f:SetFrameScale(scale, true)
-			-- end
-		-- end
+	if scaleDocked then
+		self:ForDocked('SetFrameScale', scale, true)
 	end
 end
