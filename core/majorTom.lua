@@ -38,25 +38,30 @@ controller:SetAttribute('_onstate-lock', [[
 
 --adds the given frame to control by majorTom
 controller:SetAttribute('addFrame', [[
-	local f = self:GetFrameRef('addFrame')
+	local frameId = ...
+	local f = self:GetFrameRef('frame-' .. frameId)
 
 	f:SetParent(self)
 	f:SetAttribute('state-main', self:GetAttribute('state-main'))
 	f:SetAttribute('state-lock', self:GetAttribute('state-lock'))
+	f:SetAttribute('state-destroy', nil)
 ]])
 
---removes the frame from control by majorTom
-controller:SetAttribute('remFrame', [[
-	local f = ...
-	if myFrames then
-		myFrames[f:GetAttribute('id')] = nil
-	end
+controller:SetAttribute('delFrame', [[
+	local f = self:GetFrameRef('delFrame')
+
+	f:SetAttribute('state-destroy', true)
+	f:SetParent(nil)
+	f:Hide()
 ]])
 
 controller:SetAttribute('getFrame', [[
 	local frameId = ...
 	if frameId then
-		return self:GetFrameRef('frame-' .. frameId)
+		local f = self:GetFrameRef('frame-' .. frameId)
+		if not f:GetAttribute('destroy') then
+			return f
+		end
 	end
 ]])
 
@@ -76,20 +81,15 @@ local TCFB = select(2, ...)
 TCFB.MajorTom = {
 	--add frame to state control
 	addFrame = function(self, frame)
-		controller:SetFrameRef('addFrame', frame)
-		controller:SetFrameRef('frame-' .. frame:GetAttribute('id'), frame)
-		controller:Execute([[
-			self:RunAttribute('addFrame', self:GetFrameRef('addFrame'))
-		]])
+		local frameId = frame:GetAttribute('id')
+		controller:SetFrameRef('frame-' .. frameId, frame)
+		controller:Execute(string.format([[ self:RunAttribute('addFrame', '%s') ]], frameId))
 	end,
 
 	--remove frame from state control
 	removeFrame = function(self, frame)
-		controller:SetFrameRef('remFrame', frame)
-		controller:SetFrameRef('frame-' .. frame:GetAttribute('id'), nil)
-		controller:Execute([[
-			self:RunAttribute('remFrame', self:GetFrameRef('remFrame'))
-		]])
+		controller:SetFrameRef('delFrame', frame)
+		controller:Execute([[ self:RunAttribute('delFrame') ]])
 	end,
 
 	--updates the state driver for groundControl

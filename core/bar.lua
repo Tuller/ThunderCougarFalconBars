@@ -8,7 +8,7 @@ local TCFB = select(2, ...)
 TCFB.Bar = Bar
 
 local DELIMITER = ';' --compact settings delimiter
-local frames = {}
+local active, destroyed = {}, {}
 
 local function frame_Create(id)
 	local frame = CreateFrame('Frame', nil, UIParent, 'SecureHandlerStateTemplate')
@@ -27,6 +27,14 @@ local function frame_Create(id)
 	frame:SetAttribute('_onstate-lock', [[
 		self:ChildUpdate('state-lock', newstate)
 		self:GetFrameRef('dragFrame'):SetAttribute('state-lock', newstate)
+	]])
+
+	frame:SetAttribute('_onstate-destroy', [[
+		self:CallMethod('ForDocked', 'ClearAnchor')
+		self:CallMethod('SetUserPlaced', false)
+
+		self:ChildUpdate('state-destroy', newstate)
+		self:GetFrameRef('dragFrame'):SetAttribute('state-destroy', newstate)
 	]])
 
 	-- load many state attributes
@@ -124,16 +132,35 @@ local function frame_Create(id)
 end
 
 function Bar:New(frameId, settings)
+	local f = self:Restore(frameId) or self:Create(frameId)
+	f:LoadSettings(settings)
+
+	TCFB.MajorTom:addFrame(f)
+	active[frameId] = f
+
+	return f
+end
+
+function Bar:Create(frameId)
 	local f = self:Bind(frame_Create(frameId))
 	f:SetAttribute('myAttributes', 'enable,show,scale,alpha,point,anchor')
 	f:SetFrameRef('dragFrame', TCFB.DragFrame:New(f))
-	f.sets = settings
-
-	f:LoadSettings()
-	TCFB.MajorTom:addFrame(f)
-	frames[frameId] = f
 
 	return f
+end
+
+function Bar:Restore(frameId)
+	local f = destroyed[frameId]
+	if f then
+		destroyed[frameId] = nil
+		return f
+	end
+end
+
+function Bar:Free()
+	active[self:GetAttribute('id')] = nil
+	TCFB.MajorTom:removeFrame(self)
+	destroyed[self:GetAttribute('id')] = self
 end
 
 
@@ -141,11 +168,11 @@ end
 
 
 function Bar:GetAll()
-	return pairs(frames)
+	return pairs(active)
 end
 
 function Bar:GetBar(frameId)
-	return frames[tonumber(frameId) or frameId]
+	return active[tonumber(frameId) or frameId]
 end
 
 function Bar:ForAll(method, ...)
@@ -158,7 +185,7 @@ end
 function Bar:ForDocked(method, ...)
 	local action = type(method) == 'string' and self[method] or method
 	for _,f in self:GetAll() do
-		if select(2, f:GetAnchor()) == self then
+		if select(2, f:GetAnchor()) == tostring(self:GetAttribute('id')) then
 			action(f, ...)
 		end
 	end
@@ -199,11 +226,13 @@ function Bar:Save(attribute, value, state)
 	if not stateSets then
 		self.sets[state] = {[attribute] = value}
 	end
+
 	stateSets[attribute] = value
 end
 
-function Bar:LoadSettings()
-	for state, attributes in pairs(self.sets) do
+function Bar:LoadSettings(settings)
+	self.sets = settings
+	for state, attributes in pairs(settings) do
 		for attribute, value in pairs(attributes) do
 			self:Set(attribute, value, state)
 		end
@@ -299,12 +328,12 @@ end
 function Bar:GetAnchor()
 	local anchor = self:Get('anchor')
 	if anchor then
-		local point, frameId, relPoint, x, y = string.split(';', anchor)
-		return point, self:GetBar(frameId), relPoint, x, y
+		return string.split(';', anchor)
 	end
 end
 
 function Bar:ClearAnchor()
+	self:SaveRelPosition()
 	self:Set('anchor', false)
 end
 

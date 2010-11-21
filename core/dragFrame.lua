@@ -62,7 +62,9 @@ end
 function DragFrame:OnAttributeChanged(...)
 	local enabled = self:GetAttribute('state-enable')
 	local locked = self:GetAttribute('state-lock')
-	if enabled and not locked then
+	local destroyed = self:GetAttribute('state-destroy')
+
+	if enabled and not(locked or destroyed) then
 		self:Show()
 	else
 		self:Hide()
