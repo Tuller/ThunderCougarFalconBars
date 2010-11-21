@@ -30,6 +30,7 @@ local function frame_Create(id)
 	]])
 
 	frame:SetAttribute('_onstate-destroy', [[
+		self:CallMethod('ForDocked', 'SaveRelPosition')
 		self:CallMethod('ForDocked', 'ClearAnchor')
 		self:CallMethod('SetUserPlaced', false)
 
@@ -317,8 +318,6 @@ function Bar:Stick()
 			self:StickToEdge()
 		end
 	end
-
-	self.drag:UpdateColor()
 end
 
 function Bar:SetAnchor(point, frame, relPoint, x, y)
@@ -333,7 +332,6 @@ function Bar:GetAnchor()
 end
 
 function Bar:ClearAnchor()
-	self:SaveRelPosition()
 	self:Set('anchor', false)
 end
 
