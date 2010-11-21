@@ -17,6 +17,7 @@ TCFB.Create = function(self, id)
 			scale = 1,
 			point = ('CENTER;0;%d'):format((id - 1) * -36),
 			anchor = false,
+			autoFadeDriver = '[mod]show;hide',
 		},
 		alt = {
 			enable = id < 4,
@@ -24,6 +25,7 @@ TCFB.Create = function(self, id)
 			scale = 1.5,
 			point = ('TOPLEFT;0;%d'):format((id - 1) * -36),
 			anchor = false,
+			autoFadeDriver = '[mod:shift]hide;show',
 		}
 	})
 	bar:SetSize(400, 36)

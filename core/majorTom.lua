@@ -5,6 +5,7 @@
 
 local controller = CreateFrame('Frame', nil, UIParent, 'SecureHandlerStateTemplate')
 controller:SetAllPoints(controller:GetParent())
+controller:SetFrameRef('SecureStateDriverManager', SecureStateDriverManager)
 
 --main controller state
 controller:SetAttribute('_onstate-groundControl', [[
@@ -73,6 +74,46 @@ controller:SetAttribute('placeFrame', [[
 		return true
 	end
 	return false
+]])
+
+
+--[[ state driver stuff (necessary so that I can remap frame state drivers in combat ]]--
+
+-- Register a frame attribute to be set automatically with changes in game state
+controller:SetAttribute('RegisterAttributeDriver', [[
+	local SecureStateDriverManager = self:GetFrameRef('SecureStateDriverManager')
+	local frameId, attribute, values = ...
+	local frame = myFrames[tonumber(frameId) or frameId]
+	
+    if ( attribute and values and attribute:sub(1, 1) ~= "_" ) then
+        SecureStateDriverManager:SetAttribute("setframe", frame);
+        SecureStateDriverManager:SetAttribute("setstate", attribute.." "..values);
+    end
+]])
+
+-- Unregister a frame from the state driver manager.
+controller:SetAttribute('UnregisterAttributeDriver', [[
+	local SecureStateDriverManager = self:GetFrameRef('SecureStateDriverManager')
+	local frameId, attribute = ...
+	local frame = myFrames[tonumber(frameId) or frameId]
+	
+    if ( attribute ) then
+        SecureStateDriverManager:SetAttribute("setframe", frame);
+        SecureStateDriverManager:SetAttribute("setstate", attribute);
+    else
+        SecureStateDriverManager:SetAttribute("delframe", frame);
+    end
+]])
+
+-- Bridge functions for compatibility
+controller:SetAttribute('RegisterStateDriver', [[
+	local frameId, state, values = ...
+    return self:RunAttribute('RegisterAttributeDriver', frameId, 'state-'..state, values);
+]])
+
+controller:SetAttribute('UnregisterStateDriver', [[
+	local frameId, state = ...
+    return self:RunAttribute('UnregisterAttributeDriver', frameId, 'state-'..state);
 ]])
 
 local TCFB = select(2, ...)
