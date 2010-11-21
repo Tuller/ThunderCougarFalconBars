@@ -38,8 +38,13 @@ controller:SetAttribute('_onstate-lock', [[
 
 --adds the given frame to control by majorTom
 controller:SetAttribute('addFrame', [[
-	local frameId = ...
-	local f = self:GetFrameRef('frame-' .. frameId)
+	local f = self:GetFrameRef('addFrame')
+
+	if not myFrames then
+		myFrames = table.new()
+	end
+	myFrames[f:GetAttribute('id')] = f
+
 
 	f:SetParent(self)
 	f:SetAttribute('state-main', self:GetAttribute('state-main'))
@@ -49,26 +54,19 @@ controller:SetAttribute('addFrame', [[
 
 controller:SetAttribute('delFrame', [[
 	local f = self:GetFrameRef('delFrame')
+	if myFrames then
+		myFrames[f:GetAttribute('id')] = nil
+	end
 
 	f:SetAttribute('state-destroy', true)
 	f:SetParent(nil)
 	f:Hide()
 ]])
 
-controller:SetAttribute('getFrame', [[
-	local frameId = ...
-	if frameId then
-		local f = self:GetFrameRef('frame-' .. frameId)
-		if not f:GetAttribute('destroy') then
-			return f
-		end
-	end
-]])
-
 controller:SetAttribute('placeFrame', [[
 	local frameId, point, relFrameId, relPoint, xOff, yOff = ...
-	local frame = self:GetFrameRef('frame-' .. frameId)
-	local relFrame = self:GetFrameRef('frame-' .. relFrameId)
+	local frame = myFrames[tonumber(frameId) or frameId]
+	local relFrame =  myFrames[tonumber(relFrameId) or relFrameId]
 
 	if frame and relFrame then
 		frame:SetPoint(point, relFrame, relPoint, xOff, yOff)
@@ -81,9 +79,8 @@ local TCFB = select(2, ...)
 TCFB.MajorTom = {
 	--add frame to state control
 	addFrame = function(self, frame)
-		local frameId = frame:GetAttribute('id')
-		controller:SetFrameRef('frame-' .. frameId, frame)
-		controller:Execute(string.format([[ self:RunAttribute('addFrame', '%s') ]], frameId))
+		controller:SetFrameRef('addFrame', frame)
+		controller:Execute([[ self:RunAttribute('addFrame') ]])
 	end,
 
 	--remove frame from state control

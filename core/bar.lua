@@ -38,38 +38,6 @@ local function frame_Create(id)
 		self:GetFrameRef('dragFrame'):SetAttribute('state-destroy', newstate)
 	]])
 
-	-- load many state attributes
-	frame:SetAttribute('lodas', [[
-		local state = self:GetAttribute('state-main') or 'default'
-
-		for i = 1, select('#', ...) do
-			local id = select(i, ...)
-			self:RunAttribute('loda', id, state)
-		end
-	]])
-
-	frame:SetAttribute('loda', [[
-		local id, state = ...
-		state = state or 'default'
-
-		local oldVal = self:GetAttribute('state-' .. id)
-		local newVal = self:RunAttribute('geta', id, state)
-		if oldVal ~= newVal then
-			self:SetAttribute('state-' .. id, newVal)
-		end
-	]])
-
-	frame:SetAttribute('geta', [[
-		local id, state = ...
-		state = state or 'default'
-
-		local v = self:GetAttribute(id .. '-' .. state)
-		if v == nil then
-			return self:GetAttribute(id .. '-default')
-		end
-		return v
-	]])
-
 	frame:SetAttribute('_onstate-enable', [[
 		self:ChildUpdate('state-enable', newstate)
 		self:GetFrameRef('dragFrame'):SetAttribute('state-enable', newstate)
@@ -103,6 +71,39 @@ local function frame_Create(id)
 	frame:SetAttribute('_onstate-anchor', [[
 		self:RunAttribute('reposition')
 		self:GetFrameRef('dragFrame'):CallMethod('UpdateColor')
+	]])
+
+
+	-- load many state attributes
+	frame:SetAttribute('lodas', [[
+		local state = self:GetAttribute('state-main') or 'default'
+
+		for i = 1, select('#', ...) do
+			local id = select(i, ...)
+			self:RunAttribute('loda', id, state)
+		end
+	]])
+
+	frame:SetAttribute('loda', [[
+		local id, state = ...
+		state = state or 'default'
+
+		local oldVal = self:GetAttribute('state-' .. id)
+		local newVal = self:RunAttribute('geta', id, state)
+		if oldVal ~= newVal then
+			self:SetAttribute('state-' .. id, newVal)
+		end
+	]])
+
+	frame:SetAttribute('geta', [[
+		local id, state = ...
+		state = state or 'default'
+
+		local v = self:GetAttribute(id .. '-' .. state)
+		if v == nil then
+			return self:GetAttribute(id .. '-default')
+		end
+		return v
 	]])
 
 	frame:SetAttribute('reposition', [[
