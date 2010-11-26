@@ -3,7 +3,7 @@
 		A wrapper for defining classes that inherit from widgets
 --]]
 
-local Classy = LibStub:NewLibrary('Classy-1.0', 0)
+local Classy = LibStub:NewLibrary('Classy-1.0', 1)
 if not Classy then return end
 
 function Classy:New(frameType, parentClass)
@@ -14,7 +14,7 @@ function Classy:New(frameType, parentClass)
 		class = setmetatable(class, {__index = parentClass})
 		
 		class.super = function(self, method, ...)
-			parentClass[method](self, ...)
+			return parentClass[method](self, ...)
 		end
 	end
 

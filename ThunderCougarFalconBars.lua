@@ -53,10 +53,30 @@ SlashCmdList['ThunderCougarFalconBars'] = function(msg)
 end
 
 do
-	TCFB.MajorTom:setStateDriver('[mod:alt]alt;default')
+	TCFB.MajorTom:setStateDriver('[mod:alt]alt;[mod:ctrl];ctrl;default')
 	TCFB.MajorTom:setLock(false)
-
-	for id = 1, 4 do
-		TCFB:Create(id)
+--[[	
+	for i = 1, 10 do
+		TCFB:Create(i)
 	end
+--]]	
+	TCFB.MenuBar:New('menu', {
+		default = {
+			enable = true,
+			show = true,
+			alpha = 1,
+			scale = 1,
+			point = 'CENTER;0;0',
+			anchor = false,
+			columns = 12,
+			padding = 0,
+			spacing = 0,
+			padW = 0,
+			padH = 0,
+		},
+		alt = {
+			columns = 1,
+			spacing = 10,
+		}
+	})
 end

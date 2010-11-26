@@ -165,9 +165,9 @@ end
 function DragFrame:UpdateColor()
 	if self.owner:Get('show') then
 		if self.owner:Get('anchor') then
-			self:SetBackdropColor(0.25/2, 0.25/2, 1/2, 0.5)
+			self:SetBackdropColor(0, 0, 0.25, 0.5)
 		else
-			self:SetBackdropColor(0.25, 0.25, 1, 0.5)
+			self:SetBackdropColor(0, 0, 0.75, 0.5)
 		end
 	else
 		if self.owner:Get('anchor') then

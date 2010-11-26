@@ -72,14 +72,6 @@ local function frame_Create(id)
 		self:RunAttribute('reposition')
 		self:GetFrameRef('dragFrame'):CallMethod('UpdateColor')
 	]])
-	
-	frame:SetAttribute('_onstate-autoFadeDriver', [[
-		self:GetParent():RunAttribute('RegisterStateDriver', self:GetAttribute('id'), 'autoFade', newstate)
-	]])
-	
-	frame:SetAttribute('_onstate-autoFade', [[
-		print('this is a test', newstate)
-	]])
 
 
 	-- load many state attributes
@@ -153,7 +145,7 @@ end
 
 function Bar:Create(frameId)
 	local f = self:Bind(frame_Create(frameId))
-	f:SetAttribute('myAttributes', 'enable,show,scale,alpha,point,anchor,autoFadeDriver')
+	f:SetAttribute('myAttributes', 'enable,show,scale,alpha,point,anchor')
 	f:SetFrameRef('dragFrame', TCFB.DragFrame:New(f))
 
 	return f

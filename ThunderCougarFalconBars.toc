@@ -2,10 +2,11 @@
 ## Title: ThunderCougarFalconBars
 ## Notes: One word: ThunderCougarFalconBars
 ## Author: Tuller
-## Version: 0.0.waffles
+## Version: 0.waffles.1
 ## SavedVariables: ThunderCougarFalconBarsDB, ThunderCougarFalconBarsVersion
 ## OptionalDeps: Ace3, LibKeyBound-1.0, ButtonFacade, FlyPaper
 embeds.xml
 localization.xml
 core.xml
+menuBar.lua
 ThunderCougarFalconBars.lua
