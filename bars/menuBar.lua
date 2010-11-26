@@ -29,11 +29,13 @@ do
 	loadButtons(MENU_BUTTONS, _G['MainMenuBarArtFrame']:GetChildren())
 end
 
+function MenuBar:New(settings)
+	return self:super('New', 'menu', settings)
+end
+
 function MenuBar:Create(frameId)
 	local bar = self:super('Create', frameId)
 	bar:SetAttribute('myAttributes', table.concat(BAR_ATTRIBUTES, ','))
-	
-	bar:Execute([[ WIDTH_OFFSET = 2; HEIGHT_OFFSET = 20 ]])
 	
 	bar:SetAttribute('_onstate-main', [[
 		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
@@ -56,18 +58,21 @@ function MenuBar:Create(frameId)
 		needsLayout = true
 	]])
 	
+	bar:Execute([[ SPACING_OFFSET = -2; HEIGHT_OFFSET = 22 ]])
+
 	bar:SetAttribute('layout', [[
 		if not(myButtons and needsLayout) then return end
 
 		local numButtons = #myButtons
 		local cols = min(self:GetAttribute('state-columns'), numButtons)
 		local rows = ceil(numButtons / cols)
-		local spacing = self:GetAttribute('state-spacing')
-		local pW, pH = self:GetAttribute('state-padW'), self:GetAttribute('state-padH')
+		local spacing = self:GetAttribute('state-spacing') + SPACING_OFFSET
+		local pW = self:GetAttribute('state-padW') 
+		local pH = self:GetAttribute('state-padH')
 
 		local b = myButtons[1]
-		local w = b:GetWidth() + spacing - WIDTH_OFFSET
-		local h = b:GetHeight() + spacing - HEIGHT_OFFSET
+		local w = b:GetWidth() + spacing
+		local h = b:GetHeight() + spacing
 
 		for i, b in pairs(myButtons) do
 			local col = (i-1) % cols
@@ -76,8 +81,8 @@ function MenuBar:Create(frameId)
 			b:SetPoint('TOPLEFT', self, 'TOPLEFT', w*col + pW, -(h*row + pH) + HEIGHT_OFFSET)
 		end
 
-		self:SetWidth(max(w*cols - spacing + pW*2 + WIDTH_OFFSET, 8))
-		self:SetHeight(max(h*ceil(numButtons/cols) - spacing + pH*2, 8))
+		self:SetWidth(max(w*cols - spacing + pW*2, 8))
+		self:SetHeight(max(h*rows - spacing + pH*2 - HEIGHT_OFFSET, 8))
 		
 		needsLayout = nil
 	]])

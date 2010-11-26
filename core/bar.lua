@@ -212,7 +212,7 @@ function Bar:Set(attribute, newValue, state)
 end
 
 function Bar:Get(attribute, state)
-	state = state or self:GetAttribute('state-main')
+	state = state or self:GetAttribute('state-main') or 'default'
 
 	local v = self:GetAttribute(attribute .. '-' .. state)
 	if v == nil then
@@ -225,11 +225,11 @@ function Bar:Save(attribute, value, state)
 	state = state or self:GetAttribute('state-main')
 
 	local stateSets = self.sets[state]
-	if not stateSets then
+	if stateSets then
+		stateSets[attribute] = value
+	else
 		self.sets[state] = {[attribute] = value}
 	end
-
-	stateSets[attribute] = value
 end
 
 function Bar:LoadSettings(settings)

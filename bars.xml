@@ -1,0 +1,12 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="bars\classBar.lua"/>
+	<Script file="bars\menuBar.lua"/>
+	<Script file="bars\petBar.lua"/>
+	<!-- <Script file="bars\bagBar.lua"/> -->
+	<!-- <Script file="bars\actionBar.lua"/> -->
+	
+	<!-- <Script file="bars\totemBar.lua"/> -->
+	
+	<!-- <Script file="bars\possessBar.lua"/> -->
+	<!-- <Script file="bars\vehicleBar.lua"/> -->
+</Ui>
