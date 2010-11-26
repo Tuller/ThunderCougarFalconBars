@@ -61,7 +61,7 @@ function ClassBar:Create(frameId)
 		needsLayout = true
 	]])
 	
-	bar:Execute([[ SPACING_OFFSET = 4; PADDING_OFFSET = 4 ]])
+	bar:Execute([[ SPACING_OFFSET = 0; PADDING_OFFSET = 4 ]])
 
 	bar:SetAttribute('layout', [[
 		if not(myButtons and needsLayout) then return end
@@ -116,7 +116,15 @@ function ClassBar:Create(frameId)
 	
 	--load buttons
 	for i = 1, NUM_SHAPESHIFT_SLOTS do
-		bar:SetFrameRef('addButton', _G['ShapeshiftButton' .. i])
+		local b = _G['ShapeshiftButton' .. i]
+		
+		local r = b:GetWidth() / 36
+		local nt = b:GetNormalTexture()
+		nt:ClearAllPoints()
+		nt:SetPoint('TOPLEFT', -15 * r, 15 * r)
+		nt:SetPoint('BOTTOMRIGHT', 15 * r, -15 * r)
+		
+		bar:SetFrameRef('addButton', b)
 		bar:Execute([[ self:RunAttribute('addButton') ]])
 	end
 	bar:SetAttribute('state-numForms', GetNumShapeshiftForms())
