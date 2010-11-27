@@ -61,6 +61,22 @@ function TCFB:OnEnable()
 			padH = 0,
 		},		
 	}
+	
+	self.BagBar:New{
+		default = {
+			enable = true,
+			show = true,
+			alpha = 1,
+			scale = 1,
+			point = 'CENTER;0;0',
+			anchor = false,
+			columns = 10,
+			padding = 0,
+			spacing = 0,
+			padW = 0,
+			padH = 0,
+		},		
+	}
 end
 
 --hide the blizzard ui

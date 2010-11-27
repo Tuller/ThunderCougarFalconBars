@@ -11,7 +11,7 @@ local DELIMITER = ';' --compact settings delimiter
 local active, destroyed = {}, {}
 
 local function frame_Create(id)
-	local frame = CreateFrame('Frame', nil, UIParent, 'SecureHandlerStateTemplate')
+	local frame = CreateFrame('Frame', 'ThunderCougarFalconBar' .. id, UIParent, 'SecureHandlerStateTemplate')
 	frame:SetClampedToScreen(true)
 	frame:SetMovable(true)
 	frame:SetAttribute('id', id)
