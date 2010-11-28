@@ -1,19 +1,11 @@
-local TCFB = select(2, ...)
-local BagBar = LibStub('Classy-1.0'):New('Frame', TCFB.Bar)
-TCFB.BagBar = BagBar
+--[[
+	bagBar.lua
+		A bar that contains the menu bar bag buttons
+--]]
 
-local BAR_ATTRIBUTES = {
-	'enable',
-	'show',
-	'scale',
-	'alpha',
-	'point',
-	'anchor',
-	'columns',
-	'spacing',
-	'padW',
-	'padH'
-}
+local TCFB = select(2, ...)
+local BagBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar)
+TCFB.BagBar = BagBar
 
 --clean up the main bag button + create a square keyring
 do
@@ -74,44 +66,40 @@ end
 
 
 function BagBar:New(settings)
-	return self:super('New', 'bags', settings)
+	return TCFB.ButtonBar['New'](self, 'bags', settings)
 end
 
 function BagBar:Create(frameId)
-	local bar = self:super('Create', frameId)
+	local bar = TCFB.ButtonBar['Create'](self, frameId)
 	
-	bar:SetAttribute('myAttributes', table.concat(BAR_ATTRIBUTES, ','))
+	bar:SetAttribute('myAttributes', bar:GetAttribute('myAttributes') .. ',oneBag,showKeyring')
 	
 	bar:SetAttribute('_onstate-main', [[
 		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
+		self:RunAttribute('refreshButtons')
 		self:RunAttribute('layout')
 	]])
 	
 	bar:SetAttribute('_onstate-oneBag', [[
+		needsButtonRefresh = true
 		needsLayout = true
 	]])
 	
 	bar:SetAttribute('_onstate-showKeyring', [[
+		needsButtonRefresh = true
 		needsLayout = true
 	]])
 	
-	bar:SetAttribute('_onstate-columns', [[
-		needsLayout = true
+	bar:Execute([[
+		SPACING_OFFSET = 2
+		PADW_OFFSET = 4
+		PADH_OFFSET = 4
 	]])
 	
-	bar:SetAttribute('_onstate-spacing', [[
-		needsLayout = true
-	]])
-	
-	bar:SetAttribute('_onstate-padW', [[
-		needsLayout = true
-	]])
-	
-	bar:SetAttribute('_onstate-padH', [[
-		needsLayout = true
-	]])
-	
-	bar:SetAttribute('reloadButtons', [[
+	--adjust what buttons are visible based on showKeyring/oneBag settings
+	bar:SetAttribute('refreshButtons', [[
+		if not needsButtonRefresh then return end
+		
 		myButtons = myButtons or table.new()
 		wipe(myButtons)
 	
@@ -130,45 +118,13 @@ function BagBar:Create(frameId)
 				bag:Hide()
 			end			
 		end
-	
+
 		table.insert(myButtons, self:GetFrameRef('backpack'))
+		
+		needsButtonRefresh = nil
 	]])
 	
-	bar:Execute([[ SPACING_OFFSET = 2; PADDING_OFFSET = 4 ]])
-
-	bar:SetAttribute('layout', [[
-		if not needsLayout then return end
-		
-		self:RunAttribute('reloadButtons')
-
-		local numButtons = #myButtons
-		local cols = min(self:GetAttribute('state-columns'), numButtons)
-		local rows = ceil(numButtons / cols)
-		local spacing = self:GetAttribute('state-spacing') + SPACING_OFFSET
-		local pW = self:GetAttribute('state-padW') + PADDING_OFFSET 
-		local pH = self:GetAttribute('state-padH') + PADDING_OFFSET
-
-		local b = myButtons[1]
-		local w = b:GetWidth() + spacing
-		local h = b:GetHeight() + spacing
-		
-		for i = 1, numButtons do
-			local b = myButtons[i]
-			local col = (i-1) % cols
-			local row = ceil(i / cols) - 1
-			
-			b:ClearAllPoints()
-			b:SetPoint('TOPLEFT', self, 'TOPLEFT', w*col + pW, -(h*row + pH))
-			b:Show()
-		end
-
-		self:SetWidth(max(w*cols - spacing + pW*2, 8))
-		self:SetHeight(max(h*rows - spacing + pH*2, 8))
-		
-		needsLayout = nil
-	]])
-	
-	--add button method
+	--add bag method, replaces the add button method
 	bar:SetAttribute('addBag', [[
 		local button = self:GetFrameRef('addBag')		
 		if button then
@@ -199,7 +155,17 @@ function BagBar:Create(frameId)
 		addContainer(_G[string.format('CharacterBag%dSlot', 4 - i)])
 	end
 	
-	bar:SetAttribute('state-showKeyring', true)
-
 	return bar
+end
+
+function BagBar:SetShowKeyring(enable)
+	self:Set('showKeyring', enable)
+	bar:Execute([[ self:RunAttribute('refreshButtons') ]])
+	bar:Execute([[ self:RunAttribute('layout') ]])
+end
+
+function BagBar:SetOneBag(enable)
+	self:Set('oneBag', enable)
+	bar:Execute([[ self:RunAttribute('refreshButtons') ]])
+	bar:Execute([[ self:RunAttribute('layout') ]])
 end

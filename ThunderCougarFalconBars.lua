@@ -20,7 +20,7 @@ function TCFB:OnEnable()
 			show = true,
 			alpha = 1,
 			scale = 1,
-			point = 'CENTER;0;0',
+			point = 'BOTTOM;0;74',
 			anchor = false,
 			columns = 12,
 			padding = 0,
@@ -36,7 +36,7 @@ function TCFB:OnEnable()
 			show = true,
 			alpha = 1,
 			scale = 1,
-			point = 'CENTER;0;0',
+			point = 'BOTTOMRIGHT;-200;0',
 			anchor = false,
 			columns = 12,
 			padding = 0,
@@ -52,7 +52,7 @@ function TCFB:OnEnable()
 			show = true,
 			alpha = 1,
 			scale = 1,
-			point = 'CENTER;0;0',
+			point = 'BOTTOM;0;37',
 			anchor = false,
 			columns = 10,
 			padding = 0,
@@ -68,14 +68,20 @@ function TCFB:OnEnable()
 			show = true,
 			alpha = 1,
 			scale = 1,
-			point = 'CENTER;0;0',
+			point = 'BOTTOMRIGHT;0;0',
 			anchor = false,
 			columns = 10,
 			padding = 0,
 			spacing = 0,
 			padW = 0,
 			padH = 0,
+			oneBag = false,
+			showKeyring = true,
 		},		
+		alt = {
+			oneBag = true,
+			showKeyring = false,
+		}
 	}
 end
 

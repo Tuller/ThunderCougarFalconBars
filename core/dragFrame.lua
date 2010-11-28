@@ -9,7 +9,13 @@ TCFB.DragFrame = DragFrame
 
 local L = LibStub('AceLocale-3.0'):GetLocale('ThunderCougarFalconBars')
 local round = function(x) return floor(x + 0.5) end
-local backdrop = {
+
+local FRAME_COLORS = {
+	SHOWN = {r = 0.00, g = 0.22, b = 0.66, a = 0.5},
+	HIDDEN = {r = 0.70, g = 0.11, b = 0.11, a = 0.5},
+}
+
+local FRAME_BACKDROP = {
 	bgFile   = 	[[Interface\ChatFrame\ChatFrameBackground]],
 	edgeFile = 	[[Interface\ChatFrame\ChatFrameBackground]],
 	edgeSize = 	2,
@@ -26,19 +32,7 @@ function DragFrame:New(owner)
 	f:SetFrameStrata(owner:GetFrameStrata())
 	f:SetAllPoints(owner)
 	f:SetFrameLevel(owner:GetFrameLevel() + 5)
-	f:SetBackdrop(backdrop)
-
---[[
-	local bg = f:CreateTexture(nil, 'BACKGROUND')
-	bg:SetTexture(1, 1, 1, 0.4)
-	bg:SetAllPoints(f)
-	f:SetNormalTexture(bg)
-
-	local t = f:CreateTexture(nil, 'BACKGROUND')
-	t:SetTexture(0.2, 0.3, 0.4, 0.5)
-	t:SetAllPoints(f)
-	f:SetHighlightTexture(t)
---]]
+	f:SetBackdrop(FRAME_BACKDROP)
 
 	f:SetNormalFontObject('GameFontNormalLarge')
 	f:SetText(owner:GetAttribute('id'))
@@ -163,17 +157,17 @@ end
 
 --updates the DragFrame button color of a given bar if its attached to another bar
 function DragFrame:UpdateColor()
-	if self.owner:Get('show') then
-		if self.owner:Get('anchor') then
-			self:SetBackdropColor(0.125, 0.125, 0.75/2, 0.5)
-		else
-			self:SetBackdropColor(0.25, 0.25, 0.75, 0.5)
-		end
-	else
-		if self.owner:Get('anchor') then
-			self:SetBackdropColor(0.25, 0.25, 0.25, 0.5)
-		else
-			self:SetBackdropColor(0.5, 0.5, 0.5, 0.5)
-		end
+	local color = FRAME_COLORS[self.owner:Get('show') and 'SHOWN' or 'HIDDEN']
+	local r = color.r
+	local g = color.g
+	local b = color.b
+	local a = color.a
+
+	if self.owner:Get('anchor') then
+		r = r/2
+		g = g/2
+		b = b/2
 	end
+	
+	self:SetBackdropColor(r, g, b, a)
 end
