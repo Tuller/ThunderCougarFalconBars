@@ -4,7 +4,7 @@
 --]]
 
 local TCFB = select(2, ...)
-local ActionButton = LibStub('Classy-1.0'):New('ClassButton')
+local ActionButton = LibStub('Classy-1.0'):New('CheckButton')
 TCFB.ActionButton = ActionButton
 
 --libs and omgspeed
@@ -24,15 +24,15 @@ function ActionButton:New(id)
 	local b = self:Restore(id) or self:Create(id)
 	if b then
 		b:SetAttribute('showgrid', 0)
-		b:SetAttribute('action--base', id)
+		b:SetAttribute('action-base', id)
 		b:SetAttribute('_childupdate-action', [[
-			local id = message and self:GetAttribute('action--' .. message) or self:GetAttribute('action--base')
+			local id = message and self:GetAttribute('action-' .. message) or self:GetAttribute('action-base')
 			self:SetAttribute('action', id)
 		]])
 
 		b:UpdateGrid()
-		b:UpdateHotkey(b.buttonType)
-		b:UpdateMacro()
+--		b:UpdateHotkey(b.buttonType)
+--		b:UpdateMacro()
 
 		--hack #1billion, get rid of range indicator text
 		local hotkey = _G[b:GetName() .. 'HotKey']
@@ -104,7 +104,7 @@ end
 
 --destructor
 function ActionButton:Free()
-	local id = self:GetAttribute('action--base')
+	local id = self:GetAttribute('action-base')
 
 	self.active[id] = nil
 
@@ -150,19 +150,13 @@ end
 --macro text
 function ActionButton:UpdateMacro()
 --	if Dominos:ShowMacroText() then
-		_G[self:GetName() .. 'Name']:Show()
+	_G[self:GetName() .. 'Name']:Show()
 --	else
 --		_G[self:GetName() .. 'Name']:Hide()
 --	end
 end
 
 --utility function, resyncs the button's current action, modified by state
-function ActionButton:LoadAction()
-	local state = self:GetParent():GetAttribute('state-page')
-	local id = state and self:GetAttribute('action--' .. state) or self:GetAttribute('action--base')
-	self:SetAttribute('action', id)
-end
-
 function ActionButton:Skin()
 	_G[self:GetName() .. 'Icon']:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 	self:GetNormalTexture():SetVertexColor(1, 1, 1, 0.5)

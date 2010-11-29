@@ -83,6 +83,24 @@ function TCFB:OnEnable()
 			showKeyring = false,
 		}
 	}
+	
+	for id = 1, 2 do
+		self.ActionBar:New(id, {
+			default = {
+				enable = true,
+				show = true,
+				alpha = 1,
+				scale = 1,
+				point = 'BOTTOM;0;0',
+				anchor = false,
+				columns = 12,
+				padding = 0,
+				spacing = 0,
+				padW = 0,
+				padH = 0,
+			},		
+		})
+	end
 end
 
 --hide the blizzard ui
