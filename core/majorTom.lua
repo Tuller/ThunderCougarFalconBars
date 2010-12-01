@@ -69,8 +69,10 @@ controller:SetAttribute('placeFrame', [[
 	local frame = myFrames[tonumber(frameId) or frameId]
 	local relFrame =  myFrames[tonumber(relFrameId) or relFrameId]
 
+	print('placeFrame', frameId, relFrameId)
 	if frame and relFrame then
 		frame:SetPoint(point, relFrame, relPoint, xOff, yOff)
+		print('success!')
 		return true
 	end
 	return false
@@ -84,7 +86,7 @@ controller:SetAttribute('RegisterAttributeDriver', [[
 	local SecureStateDriverManager = self:GetFrameRef('SecureStateDriverManager')
 	local frameId, attribute, values = ...
 	local frame = myFrames[tonumber(frameId) or frameId]
-	
+
     if ( attribute and values and attribute:sub(1, 1) ~= "_" ) then
         SecureStateDriverManager:SetAttribute("setframe", frame);
         SecureStateDriverManager:SetAttribute("setstate", attribute.." "..values);
@@ -96,7 +98,7 @@ controller:SetAttribute('UnregisterAttributeDriver', [[
 	local SecureStateDriverManager = self:GetFrameRef('SecureStateDriverManager')
 	local frameId, attribute = ...
 	local frame = myFrames[tonumber(frameId) or frameId]
-	
+
     if ( attribute ) then
         SecureStateDriverManager:SetAttribute("setframe", frame);
         SecureStateDriverManager:SetAttribute("setstate", attribute);

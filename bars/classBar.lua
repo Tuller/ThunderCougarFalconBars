@@ -3,6 +3,10 @@
 		A bar that contains class buttons
 --]]
 
+if select(2, UnitClass('player')) == 'SHAMAN' or select(2, UnitClass('player')) == 'MAGE' then
+	return
+end
+
 local TCFB = select(2, ...)
 local ClassBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar)
 TCFB.ClassBar = ClassBar

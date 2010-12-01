@@ -4,7 +4,7 @@
 --]]
 
 local TCFB = select(2, ...)
-local ActionButton = LibStub('Classy-1.0'):New('CheckButton')
+local ActionButton = LibStub('Classy-1.0'):New('CheckButton', TCFB.BindableButton)
 TCFB.ActionButton = ActionButton
 
 --libs and omgspeed
@@ -12,6 +12,8 @@ local ceil = math.ceil
 local min = math.min
 local format = string.format
 local MAX_BUTTONS = 120
+
+local KeyBound = LibStub('LibKeyBound-1.0')
 
 
 --[[ Action Button ]]--
@@ -25,14 +27,11 @@ function ActionButton:New(id)
 	if b then
 		b:SetAttribute('showgrid', 0)
 		b:SetAttribute('action-base', id)
-		b:SetAttribute('_childupdate-action', [[
-			local id = message and self:GetAttribute('action-' .. message) or self:GetAttribute('action-base')
-			self:SetAttribute('action', id)
-		]])
+		b:SetAttribute('action', id)
 
 		b:UpdateGrid()
---		b:UpdateHotkey(b.buttonType)
---		b:UpdateMacro()
+		b:UpdateHotkey(b.buttonType)
+		b:UpdateMacro()
 
 		--hack #1billion, get rid of range indicator text
 		local hotkey = _G[b:GetName() .. 'HotKey']
@@ -132,11 +131,11 @@ function ActionButton:OnEnter()
 --	if Dominos:ShowTooltips() then
 		ActionButton_SetTooltip(self)
 --	end
---	KeyBound:Set(self)
+	KeyBound:Set(self)
 end
 
 --override the old update hotkeys function
---hooksecurefunc('ActionButton_UpdateHotkeys', ActionButton.UpdateHotkey)
+hooksecurefunc('ActionButton_UpdateHotkeys', ActionButton.UpdateHotkey)
 
 --button visibility
 function ActionButton:UpdateGrid()

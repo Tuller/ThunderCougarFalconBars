@@ -21,6 +21,7 @@ local function frame_Create(id)
 	]])
 
 	frame:SetAttribute('_onstate-main', [[
+		print(self:GetAttribute('id'), 'load attributes')
 		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
 	]])
 
@@ -107,6 +108,7 @@ local function frame_Create(id)
 	]])
 
 	frame:SetAttribute('reposition', [[
+		print('reposition', self:GetAttribute('id'))
 		self:ClearAllPoints()
 
 		local anchor = self:GetAttribute('state-anchor')
@@ -121,12 +123,12 @@ local function frame_Create(id)
 		local place = self:GetAttribute('state-point')
 		if place then
 			local point, x, y = string.split(';', place)
-			self:SetPoint(point, self:GetParent(), point, x, y)
+			self:SetPoint(point, '$screen', point, x, y)
 			self:CallMethod('SetUserPlaced', true)
 			return
 		end
 
-		self:SetPoint('CENTER', self:GetParent(), 'CENTER', 0, 0)
+		self:SetPoint('CENTER', '$screen', 'CENTER', 0, 0)
 		self:CallMethod('SetUserPlaced', false)
 	]])
 

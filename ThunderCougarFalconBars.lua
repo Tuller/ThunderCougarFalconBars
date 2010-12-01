@@ -13,22 +13,24 @@ function TCFB:OnEnable()
 	
 	self.MajorTom:setStateDriver('[mod:alt]alt;[mod:ctrl];ctrl;default')
 	self.MajorTom:setLock(false)
-	
-	self.ClassBar:New{
-		default = {
-			enable = true,
-			show = true,
-			alpha = 1,
-			scale = 1,
-			point = 'BOTTOM;0;74',
-			anchor = false,
-			columns = 12,
-			padding = 0,
-			spacing = 4,
-			padW = 0,
-			padH = 0,
-		},	
-	}
+--[[	
+	if self.ClassBar then
+		self.ClassBar:New{
+			default = {
+				enable = true,
+				show = true,
+				alpha = 1,
+				scale = 1,
+				point = 'BOTTOM;0;74',
+				anchor = false,
+				columns = 12,
+				padding = 0,
+				spacing = 4,
+				padW = 0,
+				padH = 0,
+			},	
+		}
+	end
 	
 	self.MenuBar:New{
 		default = {
@@ -61,7 +63,7 @@ function TCFB:OnEnable()
 			padH = 0,
 		},		
 	}
-	
+
 	self.BagBar:New{
 		default = {
 			enable = true,
@@ -83,8 +85,8 @@ function TCFB:OnEnable()
 			showKeyring = false,
 		}
 	}
-	
-	for id = 1, 2 do
+--]]	
+	for id = 1, 4 do
 		self.ActionBar:New(id, {
 			default = {
 				enable = true,

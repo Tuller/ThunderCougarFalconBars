@@ -59,7 +59,7 @@ do
 
 		itemButton_Resize(b, 30)
 	end
-	
+
 	keyRing_Create('TCFBKeyringButton')
 	itemButton_Resize(_G['MainMenuBarBackpackButton'], 30)
 end
@@ -71,44 +71,44 @@ end
 
 function BagBar:Create(frameId)
 	local bar = TCFB.ButtonBar['Create'](self, frameId)
-	
+
 	bar:SetAttribute('myAttributes', bar:GetAttribute('myAttributes') .. ',oneBag,showKeyring')
-	
+
 	bar:SetAttribute('_onstate-main', [[
 		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
 		self:RunAttribute('refreshButtons')
 		self:RunAttribute('layout')
 	]])
-	
+
 	bar:SetAttribute('_onstate-oneBag', [[
 		needsButtonRefresh = true
 		needsLayout = true
 	]])
-	
+
 	bar:SetAttribute('_onstate-showKeyring', [[
 		needsButtonRefresh = true
 		needsLayout = true
 	]])
-	
+
 	bar:Execute([[
 		SPACING_OFFSET = 2
 		PADW_OFFSET = 4
 		PADH_OFFSET = 4
 	]])
-	
+
 	--adjust what buttons are visible based on showKeyring/oneBag settings
 	bar:SetAttribute('refreshButtons', [[
 		if not needsButtonRefresh then return end
-		
+
 		myButtons = myButtons or table.new()
 		wipe(myButtons)
-	
+
 		if self:GetAttribute('state-showKeyring') then
 			table.insert(myButtons, self:GetFrameRef('keyring'))
 		else
 			self:GetFrameRef('keyring'):Hide()
 		end
-	
+
 		if not self:GetAttribute('state-oneBag') then
 			for i, bag in ipairs(myBags) do
 				table.insert(myButtons, bag)
@@ -116,45 +116,56 @@ function BagBar:Create(frameId)
 		else
 			for i, bag in ipairs(myBags) do
 				bag:Hide()
-			end			
+			end
 		end
 
 		table.insert(myButtons, self:GetFrameRef('backpack'))
-		
+
 		needsButtonRefresh = nil
 	]])
-	
+
 	--add bag method, replaces the add button method
 	bar:SetAttribute('addBag', [[
-		local button = self:GetFrameRef('addBag')		
+		local button = self:GetFrameRef('addBag')
 		if button then
 			myBags = myBags or table.new()
 			table.insert(myBags, button)
 			button:SetParent(self)
 		end
 	]])
-	
+
+	local wrapButton = function(button)
+		local f = CreateFrame('Frame', nil, bar, 'SecureHandlerBaseTemplate')
+		f:SetSize(button:GetSize())
+
+		button:SetParent(f)
+		button:ClearAllPoints()
+		button:SetPoint('CENTER', f)
+		button:Show()
+
+		return f
+	end
+
 	local addContainer = function(button)
-		bar:SetFrameRef('addBag', button)
+		bar:SetFrameRef('addBag', wrapButton(button))
 		bar:Execute([[ self:RunAttribute('addBag') ]])
 	end
-	
+
 	local addKeyring = function(button)
-		bar:SetFrameRef('keyring', button)
-		button:SetParent(bar)
+		local secureButton = wrapButton(button)
+		bar:SetFrameRef('keyring', wrapButton(button))
 	end
-	
+
 	local addBackpack = function(button)
-		bar:SetFrameRef('backpack', button)
-		button:SetParent(bar)
+		bar:SetFrameRef('backpack', wrapButton(button))
 	end
-	
+
  	addBackpack(_G['MainMenuBarBackpackButton'])
 	addKeyring(_G['TCFBKeyringButton'])
 	for i = 1, NUM_BAG_SLOTS do
 		addContainer(_G[string.format('CharacterBag%dSlot', 4 - i)])
 	end
-	
+
 	return bar
 end
 

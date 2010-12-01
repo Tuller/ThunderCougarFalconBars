@@ -7,7 +7,7 @@ local Classy = LibStub:NewLibrary('Classy-1.0', 1)
 if not Classy then return end
 
 function Classy:New(frameType, parentClass)
-	local class = CreateFrame(frameType)
+	local class = CreateFrame(frameType, nil, nil, 'SecureHandlerBaseTemplate')
 	class.mt = {__index = class}
 
 	if parentClass then
