@@ -69,10 +69,8 @@ controller:SetAttribute('placeFrame', [[
 	local frame = myFrames[tonumber(frameId) or frameId]
 	local relFrame =  myFrames[tonumber(relFrameId) or relFrameId]
 
-	print('placeFrame', frameId, relFrameId)
 	if frame and relFrame then
 		frame:SetPoint(point, relFrame, relPoint, xOff, yOff)
-		print('success!')
 		return true
 	end
 	return false

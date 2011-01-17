@@ -23,7 +23,7 @@ local FRAME_BACKDROP = {
 }
 
 function DragFrame:New(owner)
-	local f = self:Bind(CreateFrame('Button', nil, owner:GetParent()))
+	local f = self:Bind(CreateFrame('Button', nil, owner:GetParent(), 'SecureHandlerBaseTemplate'))
 	f.owner = owner; owner.drag = f
 	f.scaler = TCFB.ScaleButton:New(f)
 
@@ -46,6 +46,7 @@ function DragFrame:New(owner)
 	f:SetScript('OnClick', self.OnClick)
 	f:SetScript('OnEnter', self.OnEnter)
 	f:SetScript('OnLeave', self.OnLeave)
+
 	f:SetAttribute('state-enable', f:GetAttribute('state-enable'))
 	f:SetAttribute('state-lock', f:GetAttribute('state-lock'))
 	f:SetHighlight(false)
@@ -168,6 +169,6 @@ function DragFrame:UpdateColor()
 		g = g/2
 		b = b/2
 	end
-	
+
 	self:SetBackdropColor(r, g, b, a)
 end

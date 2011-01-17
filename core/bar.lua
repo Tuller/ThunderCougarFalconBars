@@ -21,7 +21,6 @@ local function frame_Create(id)
 	]])
 
 	frame:SetAttribute('_onstate-main', [[
-		print(self:GetAttribute('id'), 'load attributes')
 		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
 	]])
 
@@ -108,7 +107,6 @@ local function frame_Create(id)
 	]])
 
 	frame:SetAttribute('reposition', [[
-		print('reposition', self:GetAttribute('id'))
 		self:ClearAllPoints()
 
 		local anchor = self:GetAttribute('state-anchor')

@@ -13,7 +13,7 @@ function TCFB:OnEnable()
 	
 	self.MajorTom:setStateDriver('[mod:alt]alt;[mod:ctrl];ctrl;default')
 	self.MajorTom:setLock(false)
---[[	
+
 	if self.ClassBar then
 		self.ClassBar:New{
 			default = {
@@ -85,7 +85,7 @@ function TCFB:OnEnable()
 			showKeyring = false,
 		}
 	}
---]]	
+
 	for id = 1, 4 do
 		self.ActionBar:New(id, {
 			default = {
@@ -93,7 +93,7 @@ function TCFB:OnEnable()
 				show = true,
 				alpha = 1,
 				scale = 1,
-				point = 'BOTTOM;0;0',
+				point = string.format('BOTTOM;0;%d', 40*(id - 1)),
 				anchor = false,
 				columns = 12,
 				padding = 0,
