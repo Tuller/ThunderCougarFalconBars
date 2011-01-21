@@ -22,6 +22,99 @@ local FRAME_BACKDROP = {
 	insets   = 	{ left = 2, right = 2, top = 2, bottom = 2 },
 }
 
+--[[
+	Alpha fader
+--]]
+
+local function fader_OnStop(self)
+	self:GetParent():SetAlpha(self.alpha)
+end
+
+local function fader_OnFinished(self)
+	self:GetParent():SetAlpha(self.alpha)
+	self:GetParent():UpdateColor()
+
+	if self.alpha == 0 then
+		self:GetParent():Hide()
+	end
+end
+
+local function fader_Create(parent)
+	local fader = parent:CreateAnimationGroup()
+	fader:SetLooping('NONE')
+	fader:SetScript('OnFinished', fader_OnFinished)
+	fader:SetScript('OnStop', fader_OnStop)
+
+	--start the animation as completely transparent
+	local animator = fader:CreateAnimation('Alpha')
+	animator:SetChange(1)
+	animator:SetDuration(0.5)
+	animator:SetOrder(0)
+	fader.animator = animator
+
+	parent.fader = fader
+	return fader
+end
+
+
+--[[
+	Color Fader
+-=]]
+
+local function colorFader_OnUpdate(self)
+	local p = self.animator:GetSmoothProgress()
+	local r = self.sR + (self.dR * p)
+	local g = self.sG + (self.dG * p)
+	local b = self.sB + (self.dB * p)
+	local a = self.sA + (self.dA * p)
+	
+	self:saveColor(r, g, b, a)
+end
+
+local function colorFader_SetColor(self, fR, fG, fB, fA)
+	if self:IsPlaying() then self:Stop() end
+	
+	local animator = self.animator
+	local r, g, b, a = self:loadColor()
+	
+	self.sR = r
+	self.sG = g
+	self.sB = b
+	self.sA = a
+	
+	self.dR = (fR - r)
+	self.dG = (fG - g)
+	self.dB = (fB - b)
+	self.dA = (fA - a)
+	
+	self.fR = fR
+	self.fG = fG
+	self.fB = fB
+	self.fA = fA
+	
+	self:Play()
+	return self
+end
+
+local function colorFader_Create(parent, saveColor, loadColor)
+	local fader = parent:CreateAnimationGroup()
+	fader:SetLooping('NONE')
+	fader.saveColor = saveColor
+	fader.loadColor = loadColor
+
+	--start the animation as completely transparent
+	local animator = fader:CreateAnimation('Animation')
+	animator:SetDuration(0.2)
+	animator:SetOrder(0)
+	fader.animator = animator
+	
+	fader.SetColor = colorFader_SetColor
+	fader:SetScript('OnUpdate', colorFader_OnUpdate)
+	fader:SetScript('OnStop', colorFader_OnStop)
+
+	return fader	
+end
+
 function DragFrame:New(owner)
 	local f = self:Bind(CreateFrame('Button', nil, owner:GetParent(), 'SecureHandlerBaseTemplate'))
 	f.owner = owner; owner.drag = f
@@ -33,6 +126,7 @@ function DragFrame:New(owner)
 	f:SetAllPoints(owner)
 	f:SetFrameLevel(owner:GetFrameLevel() + 5)
 	f:SetBackdrop(FRAME_BACKDROP)
+	f:Hide()
 
 	f:SetNormalFontObject('GameFontNormalLarge')
 	f:SetText(owner:GetAttribute('id'))
@@ -60,9 +154,36 @@ function DragFrame:OnAttributeChanged(...)
 	local destroyed = self:GetAttribute('state-destroy')
 
 	if enabled and not(locked or destroyed) then
-		self:Show()
+		if not self:IsShown() then
+			self:Unlock()
+		end
 	else
-		self:Hide()
+		if self:IsShown() then
+			self:Lock()
+		end
+	end
+end
+
+function DragFrame:Lock()
+	local fader = self.fader or fader_Create(self)
+	if fader:IsPlaying() then
+		fader:Stop()
+	end
+	
+	fader.alpha = 0
+	fader.animator:SetChange(-1)
+	fader:Play()
+end
+
+function DragFrame:Unlock()
+	self:SetAlpha(0)
+	self:Show()
+	
+	local fader = self.fader or fader_Create(self)
+	if not fader:IsPlaying() then
+		fader.alpha = 1
+		fader.animator:SetChange(1)
+		fader:Play()
 	end
 end
 
@@ -111,9 +232,9 @@ function DragFrame:SetHighlight(enable)
 	self.highlight = max(self.highlight, 0)
 
 	if self.highlight > 0 then
-		self:SetBackdropBorderColor(1, 0.8, 0, 1)
+		self:SetBorderColor(1, 0.8, 0, 1)
 	else
-		self:SetBackdropBorderColor(0, 0, 0, 0.5)
+		self:SetBorderColor(0, 0, 0, 0.5)
 	end
 end
 
@@ -121,6 +242,7 @@ function DragFrame:StartMoving(button)
 	if button == 'LeftButton' then
 		self.isMoving = true
 		self.owner:StartMoving()
+		self:SetHighlight(true)
 		self:OnLeave()
 	end
 end
@@ -130,6 +252,7 @@ function DragFrame:StopMoving()
 		self.isMoving = nil
 		self.owner:StopMovingOrSizing()
 		self.owner:Stick()
+		self:SetHighlight(false)
 		self:OnEnter()
 	end
 end
@@ -170,5 +293,43 @@ function DragFrame:UpdateColor()
 		b = b/2
 	end
 
-	self:SetBackdropColor(r, g, b, a)
+	self:SetColor(r, g, b, a)
+end
+
+function DragFrame:SetBorderColor(r, g, b, a)
+	local pR, pG, pB, pA = self:GetBackdropBorderColor()
+	if not(r == pR and g == pG and b == pB and a == pA) then
+		local fader = self.borderFader
+		if not fader then
+			fader = colorFader_Create(self); self.borderFader = fader
+			
+			fader.saveColor = function(self, r, g, b, a) 
+				return self:GetParent():SetBackdropBorderColor(r, g, b, a) 
+			end
+			
+			fader.loadColor = function(self)
+				return self:GetParent():GetBackdropBorderColor()
+			end
+		end
+		fader:SetColor(r, g, b, a)
+	end
+end
+
+function DragFrame:SetColor(r, g, b, a)
+	local pR, pG, pB, pA = self:GetBackdropColor()
+	if not(r == pR and g == pG and b == pB and a == pA) then
+		local fader = self.colorFader
+		if not fader then
+			fader = colorFader_Create(self); self.colorFader = fader
+		
+			fader.saveColor = function(self, r, g, b, a) 
+				return self:GetParent():SetBackdropColor(r, g, b, a) 
+			end
+		
+			fader.loadColor = function(self)
+				return self:GetParent():GetBackdropColor()
+			end
+		end
+		fader:SetColor(r, g, b, a)
+	end
 end

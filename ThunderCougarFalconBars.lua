@@ -85,8 +85,26 @@ function TCFB:OnEnable()
 			showKeyring = false,
 		}
 	}
+	
+	if self.RollBar then
+		self.RollBar:New{
+			default = {
+				enable = true,
+				show = true,
+				alpha = 1,
+				scale = 1,
+				point = 'LEFT;0;0',
+				anchor = false,
+				columns = 1,
+				padding = 0,
+				spacing = 2,
+				padW = 0,
+				padH = 0,
+			},
+		}
+	end
 
-	for id = 1, 4 do
+	for id = 1, 12 do
 		self.ActionBar:New(id, {
 			default = {
 				enable = true,
@@ -103,6 +121,26 @@ function TCFB:OnEnable()
 			},		
 		})
 	end
+end
+
+function TCFB:GetDefaults()
+	return {
+		profile = {
+			sticky = true,
+			showMacroText = true,
+			showBindingText = true,
+			showTooltips = true,
+			showMinimap = true,
+			
+			states = {
+				
+			}
+
+			frames = {
+				
+			}
+		}
+	}
 end
 
 --hide the blizzard ui

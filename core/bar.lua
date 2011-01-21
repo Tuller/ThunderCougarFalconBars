@@ -3,9 +3,8 @@
 		A movable container object
 --]]
 
-local Bar = LibStub('Classy-1.0'):New('Frame')
 local TCFB = select(2, ...)
-TCFB.Bar = Bar
+local Bar = LibStub('Classy-1.0'):New('Frame'); TCFB.Bar = Bar
 
 local DELIMITER = ';' --compact settings delimiter
 local active, destroyed = {}, {}
@@ -389,4 +388,21 @@ function Bar:SetFrameScale(scale, scaleDocked)
 	if scaleDocked then
 		self:ForDocked('SetFrameScale', scale, true)
 	end
+end
+
+--[[ Utility Methods ]]--
+
+--wrap a frame in a secure one for placement/etc
+--necesary to reference frames from secure code
+function Bar:SecureWrap(frame)
+	local f = CreateFrame('Frame', nil, self, 'SecureHandlerBaseTemplate')
+	f:Hide()
+	f:SetSize(frame:GetSize())
+
+	frame:SetParent(f)
+	frame:ClearAllPoints()
+	frame:SetPoint('CENTER', f)
+--	frame:Show()
+
+	return f
 end

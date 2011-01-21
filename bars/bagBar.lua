@@ -152,7 +152,6 @@ function BagBar:Create(frameId)
 	end
 
 	local addKeyring = function(button)
-		local secureButton = wrapButton(button)
 		bar:SetFrameRef('keyring', wrapButton(button))
 	end
 

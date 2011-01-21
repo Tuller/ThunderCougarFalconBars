@@ -4,8 +4,7 @@
 --]]
 
 local TCFB = select(2, ...)
-local PetBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar)
-TCFB.PetBar = PetBar
+local PetBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar); TCFB.PetBar = PetBar
 
 function PetBar:New(settings)
 	return TCFB.ButtonBar['New'](self, 'pet', settings)
