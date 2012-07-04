@@ -3,8 +3,8 @@
 		A movable container object
 --]]
 
-local TCFB = select(2, ...)
-local Bar = LibStub('Classy-1.0'):New('Frame'); TCFB.Bar = Bar
+local AddonName, Addon = ...
+local Bar = LibStub('Classy-1.0'):New('Frame'); Addon.Bar = Bar
 
 local DELIMITER = ';' --compact settings delimiter
 local active, destroyed = {}, {}
@@ -136,7 +136,7 @@ function Bar:New(frameId, settings)
 	local f = self:Restore(frameId) or self:Create(frameId)
 	f:LoadSettings(settings)
 
-	TCFB.MajorTom:addFrame(f)
+	Addon.MajorTom:addFrame(f)
 	active[frameId] = f
 
 	return f
@@ -144,8 +144,9 @@ end
 
 function Bar:Create(frameId)
 	local f = self:Bind(frame_Create(frameId))
+	
 	f:SetAttribute('myAttributes', 'enable,show,scale,alpha,point,anchor')
-	f:SetFrameRef('dragFrame', TCFB.DragFrame:New(f))
+	f:SetFrameRef('dragFrame', Addon.DragFrame:New(f))
 
 	return f
 end
@@ -160,7 +161,7 @@ end
 
 function Bar:Free()
 	active[self:GetAttribute('id')] = nil
-	TCFB.MajorTom:removeFrame(self)
+	Addon.MajorTom:removeFrame(self)
 	destroyed[self:GetAttribute('id')] = self
 end
 

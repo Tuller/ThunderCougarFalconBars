@@ -3,9 +3,8 @@
 		A bar that contains a set of buttons in a grid
 --]]
 
-local TCFB = select(2, ...)
-local ButtonBar = LibStub('Classy-1.0'):New('Frame', TCFB.Bar)
-TCFB.ButtonBar = ButtonBar
+local AddonName, Addon = ...
+local ButtonBar = LibStub('Classy-1.0'):New('Frame', Addon.Bar); Addon.ButtonBar = ButtonBar
 
 ButtonBar.BAR_ATTRIBUTES = {
 	'enable',
@@ -21,7 +20,8 @@ ButtonBar.BAR_ATTRIBUTES = {
 }
 
 function ButtonBar:Create(frameId)
-	local bar = TCFB.Bar['Create'](self, frameId)
+	local bar = ButtonBar.Super('Create', self, frameId)
+	
 	bar:SetAttribute('myAttributes', table.concat(self.BAR_ATTRIBUTES, ','))
 	
 	bar:SetAttribute('_onstate-main', [[

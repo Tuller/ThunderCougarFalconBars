@@ -3,8 +3,8 @@
 		An abstract button class used to allow keybound to work transparently on both the stock blizzard bindings, and click bindings
 --]]
 
-local TCFB = select(2, ...)
-local BindableButton = LibStub('Classy-1.0'):New('CheckButton'); TCFB.BindableButton = BindableButton
+local AddonName, Addon = ...
+local BindableButton = LibStub('Classy-1.0'):New('CheckButton'); Addon.BindableButton = BindableButton
 
 local KeyBound = LibStub('LibKeyBound-1.0')
 

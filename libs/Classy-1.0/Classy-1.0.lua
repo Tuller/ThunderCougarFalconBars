@@ -8,18 +8,24 @@ if not Classy then return end
 
 function Classy:New(frameType, parentClass)
 	local class = CreateFrame(frameType, nil, nil, 'SecureHandlerBaseTemplate')
-	class.mt = {__index = class}
+	local mt = {__index = class}
 
 	if parentClass then
 		class = setmetatable(class, {__index = parentClass})
 		
-		class.super = function(self, method, ...)
-			return parentClass[method](self, ...)
+		class.Super = function(methodName, ...)
+			local method = parentClass[methodName]
+			
+			if not method then
+				error('Method does not exist: ' .. methodName, 2)
+			end
+			
+			return method(...)
 		end
 	end
 
 	class.Bind = function(self, obj)
-		return setmetatable(obj, self.mt)
+		return setmetatable(obj, mt)
 	end
 
 	return class

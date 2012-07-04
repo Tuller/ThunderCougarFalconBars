@@ -3,12 +3,13 @@
 		A frame component that controls frame movement
 --]]
 
-local TCFB = select(2, ...)
-local DragFrame = LibStub('Classy-1.0'):New('Button')
-TCFB.DragFrame = DragFrame
-
+local AddonName, Addon = ...
+local DragFrame = LibStub('Classy-1.0'):New('Button'); Addon.DragFrame = DragFrame
 local L = LibStub('AceLocale-3.0'):GetLocale('ThunderCougarFalconBars')
-local round = function(x) return floor(x + 0.5) end
+
+local round = function(x) 
+	return floor(x + 0.5) 
+end
 
 local FRAME_COLORS = {
 	SHOWN = {r = 0.00, g = 0.22, b = 0.66, a = 0.5},
@@ -118,7 +119,7 @@ end
 function DragFrame:New(owner)
 	local f = self:Bind(CreateFrame('Button', nil, owner:GetParent(), 'SecureHandlerBaseTemplate'))
 	f.owner = owner; owner.drag = f
-	f.scaler = TCFB.ScaleButton:New(f)
+	f.scaler = Addon.ScaleButton:New(f)
 
 	f:EnableMouseWheel(true)
 	f:SetClampedToScreen(true)

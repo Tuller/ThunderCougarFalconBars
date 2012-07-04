@@ -3,74 +3,15 @@
 		A bar that contains the menu bar bag buttons
 --]]
 
-local TCFB = select(2, ...)
-local BagBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar)
-TCFB.BagBar = BagBar
-
---clean up the main bag button + create a square keyring
-do
-	local NT_RATIO = 64/37
-
-	local function itemButton_Resize(b, size)
-		b:SetSize(size, size)
-		b:GetNormalTexture():SetSize(size * NT_RATIO, size * NT_RATIO)
-
-		local count = _G[b:GetName() .. 'Count']
-		count:SetFontObject('NumberFontNormalSmall')
-		count:SetPoint('BOTTOMRIGHT', 0, 2)
-
-		_G[b:GetName() .. 'Stock']:SetFontObject('NumberFontNormalSmall')
-		_G[b:GetName() .. 'Stock']:SetVertexColor(1, 1, 0)
-	end
-
-	local function keyRing_Create(name)
-		local b = CreateFrame('CheckButton', name, UIParent, 'ItemButtonTemplate')
-		b:RegisterForClicks('anyUp')
-		b:Hide()
-
-		b:SetScript('OnClick', function()
-			if CursorHasItem() then
-				PutKeyInKeyRing()
-			else
-				ToggleKeyRing()
-			end
-		end)
-
-		b:SetScript('OnReceiveDrag', function()
-			if CursorHasItem() then
-				PutKeyInKeyRing()
-			end
-		end)
-
-		b:SetScript('OnEnter', function(self)
-			GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-
-			local color = HIGHLIGHT_FONT_COLOR
-			GameTooltip:SetText(KEYRING, color.r, color.g, color.b)
-			GameTooltip:AddLine()
-		end)
-
-		b:SetScript('OnLeave', function()
-			GameTooltip:Hide()
-		end)
-
-		_G[b:GetName() .. 'IconTexture']:SetTexture([[Interface\ContainerFrame\KeyRing-Bag-Icon]])
-		_G[b:GetName() .. 'IconTexture']:SetTexCoord(0, 0.9, 0.1, 1)
-
-		itemButton_Resize(b, 30)
-	end
-
-	keyRing_Create('TCFBKeyringButton')
-	itemButton_Resize(_G['MainMenuBarBackpackButton'], 30)
-end
-
+local AddonName, Addon = ...
+local BagBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.BagBar = BagBar
 
 function BagBar:New(settings)
-	return TCFB.ButtonBar['New'](self, 'bags', settings)
+	return BagBar.Super('New', self, 'bags', settings)
 end
 
 function BagBar:Create(frameId)
-	local bar = TCFB.ButtonBar['Create'](self, frameId)
+	local bar = BagBar.Super('Create', self, frameId)
 
 	bar:SetAttribute('myAttributes', bar:GetAttribute('myAttributes') .. ',oneBag,showKeyring')
 
@@ -102,12 +43,6 @@ function BagBar:Create(frameId)
 
 		myButtons = myButtons or table.new()
 		wipe(myButtons)
-
-		if self:GetAttribute('state-showKeyring') then
-			table.insert(myButtons, self:GetFrameRef('keyring'))
-		else
-			self:GetFrameRef('keyring'):Hide()
-		end
 
 		if not self:GetAttribute('state-oneBag') then
 			for i, bag in ipairs(myBags) do
@@ -141,37 +76,27 @@ function BagBar:Create(frameId)
 		button:SetParent(f)
 		button:ClearAllPoints()
 		button:SetPoint('CENTER', f)
-		button:Show()
+		-- button:Show()
 
 		return f
 	end
 
 	local addContainer = function(button)
-		bar:SetFrameRef('addBag', wrapButton(button))
+		bar:SetFrameRef('addBag', bar:SecureWrap(button))
 		bar:Execute([[ self:RunAttribute('addBag') ]])
 	end
 
-	local addKeyring = function(button)
-		bar:SetFrameRef('keyring', wrapButton(button))
-	end
-
 	local addBackpack = function(button)
-		bar:SetFrameRef('backpack', wrapButton(button))
+		bar:SetFrameRef('backpack', bar:SecureWrap(button))
 	end
-
+	
  	addBackpack(_G['MainMenuBarBackpackButton'])
-	addKeyring(_G['TCFBKeyringButton'])
+	
 	for i = 1, NUM_BAG_SLOTS do
 		addContainer(_G[string.format('CharacterBag%dSlot', 4 - i)])
 	end
 
 	return bar
-end
-
-function BagBar:SetShowKeyring(enable)
-	self:Set('showKeyring', enable)
-	bar:Execute([[ self:RunAttribute('refreshButtons') ]])
-	bar:Execute([[ self:RunAttribute('layout') ]])
 end
 
 function BagBar:SetOneBag(enable)

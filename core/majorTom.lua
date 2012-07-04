@@ -116,8 +116,8 @@ controller:SetAttribute('UnregisterStateDriver', [[
     return self:RunAttribute('UnregisterAttributeDriver', frameId, 'state-'..state);
 ]])
 
-local TCFB = select(2, ...)
-TCFB.MajorTom = {
+local AddonName, Addon = ...
+Addon.MajorTom = {
 	--add frame to state control
 	addFrame = function(self, frame)
 		controller:SetFrameRef('addFrame', frame)

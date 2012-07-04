@@ -3,16 +3,15 @@
 		A bar that contains the main menu bar micro menu buttons
 --]]
 
-local TCFB = select(2, ...)
-local MenuBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar)
-TCFB.MenuBar = MenuBar
+local AddonName, Addon = ...
+local MenuBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.MenuBar = MenuBar
 
 function MenuBar:New(settings)
-	return TCFB.ButtonBar['New'](self, 'menu', settings)
+	return MenuBar.Super('New', self, 'menu', settings)
 end
 
 function MenuBar:Create(frameId)
-	local bar = TCFB.ButtonBar['Create'](self, frameId)
+	local bar = MenuBar.Super('Create', self, frameId)
 	
 	bar:Execute([[ 
 		SPACING_OFFSET = -2 

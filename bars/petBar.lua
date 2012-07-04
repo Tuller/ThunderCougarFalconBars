@@ -3,19 +3,19 @@
 		A bar that contains the pet action buttons
 --]]
 
-local TCFB = select(2, ...)
-local PetBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar); TCFB.PetBar = PetBar
+local AddonName, Addon = ...
+local PetBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.PetBar = PetBar
 
 function PetBar:New(settings)
-	return TCFB.ButtonBar['New'](self, 'pet', settings)
+	return PetBar.Super('New', self, 'pet', settings)
 end
 
 function PetBar:Create(frameId)
-	local bar = TCFB.ButtonBar['Create'](self, frameId)
+	local bar = PetBar.Super('Create', self, frameId)
 		
 	--create proxy frame so that we can hide pet buttons independent of hiding the main frame
 	bar:SetFrameRef('buttonFrame', CreateFrame('Frame', nil, bar, 'SecureHandlerStateTemplate'))
-	RegisterStateDriver(bar, 'pet', '[@pet,exists,nobonusbar:5]show;hide')
+	RegisterStateDriver(bar, 'pet', '[@pet,exists,novehicleui]show;hide')
 	
 	bar:SetAttribute('_onstate-pet', [[
 		local buttonFrame = self:GetFrameRef('buttonFrame')

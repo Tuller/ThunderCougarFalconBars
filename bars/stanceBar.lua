@@ -1,5 +1,5 @@
 --[[
-	classBar.lua
+	StanceBar.lua
 		A bar that contains class buttons
 --]]
 
@@ -7,12 +7,12 @@ if select(2, UnitClass('player')) == 'SHAMAN' or select(2, UnitClass('player')) 
 	return
 end
 
-local TCFB = select(2, ...)
-local ClassBar = LibStub('Classy-1.0'):New('Frame', TCFB.ButtonBar)
-TCFB.ClassBar = ClassBar
+local AddonName, Addon = ...
+local StanceBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.StanceBar = StanceBar
+local NUM_STANCE_SLOTS = NUM_STANCE_SLOTS
 
-function ClassBar:New(settings)
-	local f = TCFB.ButtonBar['New'](self, 'class', settings)
+function StanceBar:New(settings)
+	local f = StanceBar.Super('New', self, 'class', settings)
 	
 	f:RegisterEvent('PLAYER_ENTERING_WORLD')
 	f:RegisterEvent('UPDATE_SHAPESHIFT_FORMS')
@@ -28,8 +28,8 @@ function ClassBar:New(settings)
 	return f
 end
 
-function ClassBar:Create(frameId)
-	local bar = TCFB.ButtonBar['Create'](self, frameId)
+function StanceBar:Create(frameId)
+	local bar = StanceBar.Super('Create', self, frameId)
 	
 	bar:SetAttribute('state-numButtons', GetNumShapeshiftForms())
 	
@@ -39,8 +39,8 @@ function ClassBar:Create(frameId)
 	]])
 	
 	--load buttons
-	for i = 1, NUM_SHAPESHIFT_SLOTS do
-		local b = _G['ShapeshiftButton' .. i]
+	for i = 1, NUM_STANCE_SLOTS do
+		local b = _G['StanceButton' .. i]
 		
 		local r = b:GetWidth() / 36
 		local nt = b:GetNormalTexture()
@@ -57,22 +57,23 @@ function ClassBar:Create(frameId)
 	return bar
 end
 
-function ClassBar:OnEvent(event, ...)
+function StanceBar:OnEvent(event, ...)
 	if event == 'PLAYER_ENTERING_WORLD' or event == 'UPDATE_SHAPESHIFT_FORMS' then
 		self:UpdateNumForms()
 	end
+	
 	self:UpdateForms()
 end
 
-function ClassBar:UpdateNumForms()
+function StanceBar:UpdateNumForms()
 	self:SetAttribute('state-numButtons', GetNumShapeshiftForms())
 	self:Execute([[ self:RunAttribute('layout') ]])
 end
 
-function ClassBar:UpdateForms()
+function StanceBar:UpdateForms()
 	for i = 1, GetNumShapeshiftForms() do
 		local texture, name, isActive, isCastable = GetShapeshiftFormInfo(i)
-		local button = _G['ShapeshiftButton' .. i]	
+		local button = _G['StanceButton' .. i]	
 		local icon = _G[button:GetName() .. 'Icon']
 		local cooldown = _G[button:GetName() .. 'Cooldown']
 		
