@@ -8,7 +8,8 @@ if select(2, UnitClass('player')) == 'SHAMAN' or select(2, UnitClass('player')) 
 end
 
 local AddonName, Addon = ...
-local StanceBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.StanceBar = StanceBar
+local StanceBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.StanceBar = StanceBar
+
 local NUM_STANCE_SLOTS = NUM_STANCE_SLOTS
 
 function StanceBar:New(settings)

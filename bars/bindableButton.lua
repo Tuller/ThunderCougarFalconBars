@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local BindableButton = LibStub('Classy-1.0'):New('CheckButton'); Addon.BindableButton = BindableButton
+local BindableButton = Addon:NewFrameClass('CheckButton'); Addon.BindableButton = BindableButton
 
 local KeyBound = LibStub('LibKeyBound-1.0')
 

@@ -3,10 +3,9 @@
 		A wrapper for defining classes that inherit from widgets
 --]]
 
-local Classy = LibStub:NewLibrary('Classy-1.0', 1)
-if not Classy then return end
+local AddonName, Addon = ...
 
-function Classy:New(frameType, parentClass)
+function Addon:NewFrameClass(frameType, parentClass)
 	local class = CreateFrame(frameType, nil, nil, 'SecureHandlerBaseTemplate')
 	local mt = {__index = class}
 

@@ -119,42 +119,46 @@ controller:SetAttribute('UnregisterStateDriver', [[
 local AddonName, Addon = ...
 Addon.MajorTom = {
 	--add frame to state control
-	addFrame = function(self, frame)
+	AddFrame = function(self, frame)
 		controller:SetFrameRef('addFrame', frame)
 		controller:Execute([[ self:RunAttribute('addFrame') ]])
 	end,
 
 	--remove frame from state control
-	removeFrame = function(self, frame)
+	RemoveFrame = function(self, frame)
 		controller:SetFrameRef('delFrame', frame)
 		controller:Execute([[ self:RunAttribute('delFrame') ]])
 	end,
 
 	--updates the state driver for groundControl
-	setStateDriver = function(self, values)
+	SetStateDriver = function(self, values)
 		self.stateDriver = stateDriver
 		RegisterStateDriver(controller, 'groundControl', values)
 	end,
 
-	getStateDriver = function(self, values)
+	GetStateDriver = function(self, values)
 		return self.stateDriver
 	end,
 
 	--updates the override state for groundControl (majorTom)
-	setOverrideState = function(self, state)
+	SetOverrideState = function(self, state)
 		controller:SetAttribute('state-majorTom', state)
 	end,
+	
+	GetOverrideState = function(self)
+		return controller:GetAttribute('state-majorTom')
+	end,
 
-	getState = function(self)
+	GetCurrentState = function(self)
 		return controller:GetAttribute('state-main')
 	end,
 
 	--enables|disables the lock state
-	setLock = function(self, enable)
+	SetLock = function(self, enable)
 		controller:SetAttribute('state-lock', enable and true or false)
 	end,
 
-	getLock = function(self)
+	GetLock = function(self)
 		return controller:GetAttribute('state-lock')
 	end,
 }

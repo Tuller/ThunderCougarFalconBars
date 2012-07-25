@@ -4,7 +4,9 @@
 --]]
 
 local AddonName, Addon = ...
-local BagBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.BagBar = BagBar
+local BagBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.BagBar = BagBar
+
+BagBar.BAR_ATTRIBUTES = Addon.Utility:ConcatArrays(Addon.ButtonBar.BAR_ATTRIBUTES, { 'oneBag' })
 
 function BagBar:New(settings)
 	return BagBar.Super('New', self, 'bags', settings)
@@ -12,25 +14,19 @@ end
 
 function BagBar:Create(frameId)
 	local bar = BagBar.Super('Create', self, frameId)
-
-	bar:SetAttribute('myAttributes', bar:GetAttribute('myAttributes') .. ',oneBag,showKeyring')
-
-	bar:SetAttribute('_onstate-main', [[
-		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
+	
+	bar:SetAttribute('postMain', [[
+		needsButtonRefresh = true
+		
 		self:RunAttribute('refreshButtons')
 		self:RunAttribute('layout')
 	]])
-
+	
 	bar:SetAttribute('_onstate-oneBag', [[
 		needsButtonRefresh = true
 		needsLayout = true
 	]])
-
-	bar:SetAttribute('_onstate-showKeyring', [[
-		needsButtonRefresh = true
-		needsLayout = true
-	]])
-
+	
 	bar:Execute([[
 		SPACING_OFFSET = 2
 		PADW_OFFSET = 4
@@ -62,6 +58,7 @@ function BagBar:Create(frameId)
 	--add bag method, replaces the add button method
 	bar:SetAttribute('addBag', [[
 		local button = self:GetFrameRef('addBag')
+		
 		if button then
 			myBags = myBags or table.new()
 			table.insert(myBags, button)
@@ -69,31 +66,20 @@ function BagBar:Create(frameId)
 		end
 	]])
 
-	local wrapButton = function(button)
-		local f = CreateFrame('Frame', nil, bar, 'SecureHandlerBaseTemplate')
-		f:SetSize(button:GetSize())
-
-		button:SetParent(f)
-		button:ClearAllPoints()
-		button:SetPoint('CENTER', f)
-		-- button:Show()
-
-		return f
-	end
-
 	local addContainer = function(button)
-		bar:SetFrameRef('addBag', bar:SecureWrap(button))
+		bar:SetFrameRef('addBag', button)
 		bar:Execute([[ self:RunAttribute('addBag') ]])
 	end
 
 	local addBackpack = function(button)
-		bar:SetFrameRef('backpack', bar:SecureWrap(button))
+		bar:SetFrameRef('backpack', button)
+		bar:Execute([[ self:GetFrameRef('backpack'):SetParent(self) ]])
 	end
 	
  	addBackpack(_G['MainMenuBarBackpackButton'])
 	
 	for i = 1, NUM_BAG_SLOTS do
-		addContainer(_G[string.format('CharacterBag%dSlot', 4 - i)])
+		addContainer(_G[string.format('CharacterBag%dSlot', NUM_BAG_SLOTS - i)])
 	end
 
 	return bar

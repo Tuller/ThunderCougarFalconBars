@@ -1,18 +1,12 @@
-﻿local TCFB = LibStub('AceAddon-3.0'):NewAddon('ThunderCougarFalconBars', 'AceEvent-3.0', 'AceConsole-3.0')
---inject super addon powers
-do
-	local name, addonTable = ...
-	for k, v in pairs(addonTable) do
-		TCFB[k] = v
-	end
-end
+﻿local AddonName, Addon = ...
+local TCFB = LibStub('AceAddon-3.0'):NewAddon(Addon, AddonName, 'AceEvent-3.0', 'AceConsole-3.0')
 
 function TCFB:OnEnable()
 	self:HideBlizzard()
-	self:LoadSlashCommands()
+	--self:LoadSlashCommands()
 	
-	self.MajorTom:setStateDriver('[mod:alt]alt;[mod:ctrl];ctrl;default')
-	self.MajorTom:setLock(false)
+	self.MajorTom:SetStateDriver('[mod:alt]alt;[mod:ctrl];ctrl;default')
+	self.MajorTom:SetLock(false)
 
 	if self.StanceBar then
 		self.StanceBar:New{
@@ -85,24 +79,6 @@ function TCFB:OnEnable()
 			showKeyring = false,
 		}
 	}
-	
-	if self.RollBar then
-		self.RollBar:New{
-			default = {
-				enable = true,
-				show = true,
-				alpha = 1,
-				scale = 1,
-				point = 'LEFT;0;0',
-				anchor = false,
-				columns = 1,
-				padding = 0,
-				spacing = 2,
-				padW = 0,
-				padH = 0,
-			},
-		}
-	end
 
 	for id = 1, 12 do
 		self.ActionBar:New(id, {
@@ -111,7 +87,7 @@ function TCFB:OnEnable()
 				show = true,
 				alpha = 1,
 				scale = 1,
-				point = string.format('BOTTOM;0;%d', 40*(id - 1)),
+				point = string.format('BOTTOM;0;%d', 40 * (id - 1)),
 				anchor = false,
 				columns = 12,
 				padding = 0,
@@ -121,26 +97,6 @@ function TCFB:OnEnable()
 			},		
 		})
 	end
-end
-
-function TCFB:GetDefaults()
-	return {
-		profile = {
-			sticky = true,
-			showMacroText = true,
-			showBindingText = true,
-			showTooltips = true,
-			showMinimap = true,
-			
-			states = {
-				
-			},
-
-			frames = {
-				
-			}
-		}
-	}
 end
 
 --hide the blizzard ui
@@ -167,7 +123,7 @@ function TCFB:LoadSlashCommands()
 		local cmd = info[1]
 
 		if cmd == 'lock' then
-			TCFB.MajorTom:setLock(not TCFB.MajorTom:getLock())
+			TCFB.MajorTom:SetLock(not TCFB.MajorTom:getLock())
 		elseif cmd == 'create' then
 			TCFB:Create(select(2, unpack(info)))
 		elseif cmd == 'destroy' then

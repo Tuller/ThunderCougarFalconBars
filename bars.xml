@@ -6,6 +6,4 @@
 	<Script file="bars\menuBar.lua"/>
 	<Script file="bars\petBar.lua"/>
 	<Script file="bars\bagBar.lua"/>
-	<!-- <Script file="bars\possessBar.lua"/> -->
-	<!-- <Script file="bars\vehicleBar.lua"/> -->
 </Ui>

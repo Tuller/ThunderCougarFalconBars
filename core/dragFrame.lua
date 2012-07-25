@@ -4,7 +4,8 @@
 --]]
 
 local AddonName, Addon = ...
-local DragFrame = LibStub('Classy-1.0'):New('Button'); Addon.DragFrame = DragFrame
+local DragFrame = Addon:NewFrameClass('Button'); Addon.DragFrame = DragFrame
+
 local L = LibStub('AceLocale-3.0'):GetLocale('ThunderCougarFalconBars')
 
 local round = function(x) 
@@ -249,18 +250,21 @@ function DragFrame:StartMoving(button)
 end
 
 function DragFrame:StopMoving()
-	if self.isMoving then
-		self.isMoving = nil
-		self.owner:StopMovingOrSizing()
-		self.owner:Stick()
-		self:SetHighlight(false)
-		self:OnEnter()
+	if not self.isMoving then
+		return
 	end
+	
+	self.isMoving = nil
+	self.owner:StopMovingOrSizing()
+	self.owner:Stick()
+	self:SetHighlight(false)
+	self:OnEnter()
 end
 
 function DragFrame:OnMouseWheel(arg1)
 	local alpha = self.owner:Get('alpha')
 	local newAlpha = min(max(alpha + (arg1 * 0.05), 0), 1)
+	
 	if newAlpha ~= alpha then
 		self.owner:Set('alpha', newAlpha)
 		self:UpdateTooltip()

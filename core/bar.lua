@@ -4,13 +4,13 @@
 --]]
 
 local AddonName, Addon = ...
-local Bar = LibStub('Classy-1.0'):New('Frame'); Addon.Bar = Bar
+local Bar = Addon:NewFrameClass('Frame'); Addon.Bar = Bar
 
 local DELIMITER = ';' --compact settings delimiter
 local active, destroyed = {}, {}
 
 local function frame_Create(id)
-	local frame = CreateFrame('Frame', 'ThunderCougarFalconBar' .. id, UIParent, 'SecureHandlerStateTemplate')
+	local frame = CreateFrame('Frame', string.format('%sBar%s', AddonName, id), UIParent, 'SecureHandlerStateTemplate')
 	frame:SetClampedToScreen(true)
 	frame:SetMovable(true)
 	frame:SetAttribute('id', id)
@@ -19,9 +19,10 @@ local function frame_Create(id)
 		self:SetAttribute(scriptid, message)
 	]])
 
-	frame:SetAttribute('_onstate-main', [[
-		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
-	]])
+	frame:SetAttribute('_onstate-main', string.format([[
+		self:RunAttribute('lodas', string.split('%s', self:GetAttribute('myAttributes')))
+		self:RunAttribute('postMain')
+	]], DELIMITER))
 
 	frame:SetAttribute('_onstate-lock', [[
 		self:ChildUpdate('state-lock', newstate)
@@ -132,11 +133,20 @@ local function frame_Create(id)
 	return frame
 end
 
+Bar.BAR_ATTRIBUTES = {
+	'enable',
+	'show',
+	'scale',
+	'alpha',
+	'point',
+	'anchor'
+}
+
 function Bar:New(frameId, settings)
 	local f = self:Restore(frameId) or self:Create(frameId)
 	f:LoadSettings(settings)
 
-	Addon.MajorTom:addFrame(f)
+	Addon.MajorTom:AddFrame(f)
 	active[frameId] = f
 
 	return f
@@ -145,7 +155,7 @@ end
 function Bar:Create(frameId)
 	local f = self:Bind(frame_Create(frameId))
 	
-	f:SetAttribute('myAttributes', 'enable,show,scale,alpha,point,anchor')
+	f:SetAttribute('myAttributes', table.concat(f.BAR_ATTRIBUTES, DELIMITER))
 	f:SetFrameRef('dragFrame', Addon.DragFrame:New(f))
 
 	return f
@@ -161,7 +171,7 @@ end
 
 function Bar:Free()
 	active[self:GetAttribute('id')] = nil
-	Addon.MajorTom:removeFrame(self)
+	Addon.MajorTom:RemoveFrame(self)
 	destroyed[self:GetAttribute('id')] = self
 end
 
@@ -197,7 +207,7 @@ end
 --[[ state settings ]]--
 
 function Bar:Set(attribute, newValue, state)
-	state = state or self:GetAttribute('state-main')
+	local state = state or self:GetAttribute('state-main')
 
 	local oldValue = self:Get(attribute, state)
 	if oldValue ~= newValue then
@@ -212,7 +222,7 @@ function Bar:Set(attribute, newValue, state)
 end
 
 function Bar:Get(attribute, state)
-	state = state or self:GetAttribute('state-main') or 'default'
+	local state = state or self:GetAttribute('state-main') or 'default'
 
 	local v = self:GetAttribute(attribute .. '-' .. state)
 	if v == nil then
@@ -222,7 +232,7 @@ function Bar:Get(attribute, state)
 end
 
 function Bar:Save(attribute, value, state)
-	state = state or self:GetAttribute('state-main')
+	local state = state or self:GetAttribute('state-main')
 
 	local stateSets = self.sets[state]
 	if stateSets then
@@ -247,9 +257,9 @@ Bar.stickyTolerance = 16
 function Bar:StickToEdge()
 	local point, x, y = self:GetRelPosition()
 	local s = self:GetScale()
-	local w = self:GetParent():GetWidth()/s
-	local h = self:GetParent():GetHeight()/s
-	local rTolerance = self.stickyTolerance/s
+	local w = self:GetParent():GetWidth() / s
+	local h = self:GetParent():GetHeight() / s
+	local rTolerance = self.stickyTolerance / s
 	local changed = false
 
 	--sticky edges
@@ -300,6 +310,7 @@ function Bar:Stick()
 	self:ClearAnchor()
 
 	--only do sticky code if the alt key is not currently down
+	--TODO: Make this not hardcoded to Alt
 	if not IsAltKeyDown() then
 		local anchored = false
 

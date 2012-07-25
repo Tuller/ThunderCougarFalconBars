@@ -4,30 +4,33 @@
 --]]
 
 local AddonName, Addon = ...
-local ButtonBar = LibStub('Classy-1.0'):New('Frame', Addon.Bar); Addon.ButtonBar = ButtonBar
+local ButtonBar = Addon:NewFrameClass('Frame', Addon.Bar); Addon.ButtonBar = ButtonBar
 
-ButtonBar.BAR_ATTRIBUTES = {
-	'enable',
-	'show',
-	'scale',
-	'alpha',
-	'point',
-	'anchor',
+local ButtonBarAttributes = {
 	'columns',
 	'spacing',
 	'padW',
 	'padH'
 }
 
+ButtonBar.BAR_ATTRIBUTES = Addon.Utility:ConcatArrays(Addon.Bar.BAR_ATTRIBUTES, ButtonBarAttributes)
+
 function ButtonBar:Create(frameId)
 	local bar = ButtonBar.Super('Create', self, frameId)
 	
-	bar:SetAttribute('myAttributes', table.concat(self.BAR_ATTRIBUTES, ','))
+	--[[ init any bar global variables ]]--
 	
-	bar:SetAttribute('_onstate-main', [[
-		self:RunAttribute('lodas', string.split(',', self:GetAttribute('myAttributes')))
-		self:RunAttribute('layout')
+	bar:Execute([[
+		SPACING_OFFSET = 0
+		PADW_OFFSET = 0
+		PADH_OFFSET = 0
+		HEIGHT_OFFSET = 0
+		WIDTH_OFFSET = 0
 	]])
+	
+	--[[ 
+		after a layout value is altered, set a dirty bit indicating that we need to adjust the bar's layout 
+	--]]
 	
 	bar:SetAttribute('_onstate-numButtons', [[
 		needsLayout = true
@@ -49,6 +52,10 @@ function ButtonBar:Create(frameId)
 		needsLayout = true
 	]])
 	
+	bar:SetAttribute('postMain', [[
+		self:RunAttribute('layout')
+	]])
+	
 	--add button method
 	bar:SetAttribute('addButton', [[
 		local button = self:GetFrameRef('addButton')		
@@ -59,27 +66,19 @@ function ButtonBar:Create(frameId)
 		end
 	]])
 	
-	bar:Execute([[
-		SPACING_OFFSET = 0
-		PADW_OFFSET = 0
-		PADH_OFFSET = 0
-		HEIGHT_OFFSET = 0
-		WIDTH_OFFSET = 0
-	]])
-	
 	bar:SetAttribute('layout', [[
 		if not(myButtons and needsLayout) then return end
 
 		local numButtons = self:GetAttribute('state-numButtons') or #myButtons
-		local cols = min(self:GetAttribute('state-columns'), numButtons)
+		local cols = min(self:GetAttribute('state-columns') or numButtons, numButtons)
 		local rows = ceil(numButtons / cols)
 		local spacing = self:GetAttribute('state-spacing') + SPACING_OFFSET
 		local pW = self:GetAttribute('state-padW') + PADW_OFFSET
 		local pH = self:GetAttribute('state-padH') + PADH_OFFSET
 
 		local b = myButtons[1]
-		local w = b:GetWidth() + spacing
-		local h = b:GetHeight() + spacing
+		local w = (b:GetWidth() or 0) + spacing
+		local h = (b:GetHeight() or 0) + spacing
 		
 		for i = numButtons + 1, #myButtons do
 			myButtons[i]:Hide()

@@ -3,9 +3,8 @@
 		A frame for dragging + scaling frames
 --]]
 
-local TCFB = select(2, ...)
-local ScaleButton = LibStub('Classy-1.0'):New('Button')
-TCFB.ScaleButton = ScaleButton
+local AddonName, Addon = ...
+local ScaleButton = Addon:NewFrameClass('Button'); Addon.ScaleButton = ScaleButton
 
 function ScaleButton:New(parent)
 	local f = self:Bind(CreateFrame('Button', nil, parent))

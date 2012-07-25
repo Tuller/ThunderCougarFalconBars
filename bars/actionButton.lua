@@ -3,17 +3,13 @@
 		the code for Dominos action bars and buttons
 --]]
 
-local TCFB = select(2, ...)
-local ActionButton = LibStub('Classy-1.0'):New('CheckButton', TCFB.BindableButton)
-TCFB.ActionButton = ActionButton
+local AddonName, Addon = ...
+local ActionButton = Addon:NewFrameClass('CheckButton', Addon.BindableButton); Addon.ActionButton = ActionButton
 
 --libs and omgspeed
-local ceil = math.ceil
-local min = math.min
-local format = string.format
-local MAX_BUTTONS = 120
-
 local KeyBound = LibStub('LibKeyBound-1.0')
+local _G = _G
+local format = string.format
 
 
 --[[ Action Button ]]--
@@ -59,7 +55,7 @@ local function actionButton_Create(id)
 	elseif id <= 60 then
 		return _G['MultiBarBottomLeftButton' .. (id-48)]
 	end
-	return CreateFrame('CheckButton', 'TCFBActionButton' .. (id-60), nil, 'ActionBarButtonTemplate')
+	return CreateFrame('CheckButton', format('%sActionButton%d', AddonName, (id - 60)), nil, 'ActionBarButtonTemplate')
 end
 
 function ActionButton:Create(id)
@@ -122,9 +118,7 @@ end
 
 --keybound support
 function ActionButton:OnEnter()
---	if Dominos:ShowTooltips() then
-		ActionButton_SetTooltip(self)
---	end
+	ActionButton_SetTooltip(self)
 	KeyBound:Set(self)
 end
 
@@ -142,11 +136,12 @@ end
 
 --macro text
 function ActionButton:UpdateMacro()
---	if Dominos:ShowMacroText() then
-	_G[self:GetName() .. 'Name']:Show()
---	else
---		_G[self:GetName() .. 'Name']:Hide()
---	end
+	local macroText = _G[self:GetName() .. 'Name'];	
+	if self:GetAttribute('showmacro') then
+		macroText:Show()
+	else
+		macroText:Hide()
+	end
 end
 
 --utility function, resyncs the button's current action, modified by state

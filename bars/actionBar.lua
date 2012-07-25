@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local ActionBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.ActionBar = ActionBar
+local ActionBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.ActionBar = ActionBar
 
 function ActionBar:Create(frameId)
 	local bar = ActionBar.Super('Create', self, frameId)

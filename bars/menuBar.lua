@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local MenuBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.MenuBar = MenuBar
+local MenuBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.MenuBar = MenuBar
 
 function MenuBar:New(settings)
 	return MenuBar.Super('New', self, 'menu', settings)

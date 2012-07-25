@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local PetBar = LibStub('Classy-1.0'):New('Frame', Addon.ButtonBar); Addon.PetBar = PetBar
+local PetBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.PetBar = PetBar
 
 function PetBar:New(settings)
 	return PetBar.Super('New', self, 'pet', settings)
