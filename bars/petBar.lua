@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local PetBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.PetBar = PetBar
+local PetBar = Addon:NewFrameClass('Frame', Addon.ButtonBar)
 
 function PetBar:New(settings)
 	return PetBar.Super('New', self, 'pet', settings)
@@ -40,4 +40,31 @@ function PetBar:Create(frameId)
 	end
 	
 	return bar
+end
+
+--[[
+	PetBarController
+--]]
+
+local PetBarController = Addon:NewModule('PetBar', 'AceEvent-3.0', 'AceConsole-3.0')
+
+function PetBarController:OnEnable()
+	self.bar = PetBar:New{
+		default = {
+			enable = true,
+			show = true,
+			alpha = 1,
+			scale = 1,
+			point = 'BOTTOM;0;37',
+			anchor = false,
+			columns = 10,
+			padding = 0,
+			spacing = 0,
+			padW = 0,
+			padH = 0,
+		},		
+	}
+end
+
+function PetBarController:OnDisable()
 end

@@ -13,20 +13,12 @@ local StanceBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.StanceBar
 local NUM_STANCE_SLOTS = NUM_STANCE_SLOTS
 
 function StanceBar:New(settings)
-	local f = StanceBar.Super('New', self, 'class', settings)
+	local bar = StanceBar.Super('New', self, 'stance', settings)
 	
-	f:RegisterEvent('PLAYER_ENTERING_WORLD')
-	f:RegisterEvent('UPDATE_SHAPESHIFT_FORMS')
-	f:RegisterEvent('UPDATE_SHAPESHIFT_USABLE')
-	f:RegisterEvent('UPDATE_SHAPESHIFT_COOLDOWN')
-	f:RegisterEvent('UPDATE_SHAPESHIFT_FORM')
-	f:RegisterEvent('UPDATE_INVENTORY_ALERTS')
-	f:RegisterEvent('ACTIONBAR_PAGE_CHANGED')
+	bar:UpdateNumForms()
+	bar:UpdateForms()
 	
-	f:UpdateNumForms()
-	f:UpdateForms()
-	
-	return f
+	return bar
 end
 
 function StanceBar:Create(frameId)
@@ -93,4 +85,50 @@ function StanceBar:UpdateForms()
 
 		button:SetChecked(isActive)
 	end
+end
+
+--[[
+	StanceBarController
+--]]
+
+local StanceBarController = Addon:NewModule('StanceBar', 'AceEvent-3.0', 'AceConsole-3.0')
+
+function StanceBarController:OnEnable()
+	self.bar = StanceBar:New{
+		default = {
+			enable = true,
+			show = true,
+			alpha = 1,
+			scale = 1,
+			point = 'BOTTOM;0;74',
+			anchor = false,
+			columns = 12,
+			padding = 0,
+			spacing = 4,
+			padW = 0,
+			padH = 0,
+		},	
+	}
+
+	self:RegisterEvent('PLAYER_ENTERING_WORLD', 'OnEvent')
+	self:RegisterEvent('UPDATE_SHAPESHIFT_FORMS', 'OnEvent')
+	self:RegisterEvent('UPDATE_SHAPESHIFT_USABLE', 'OnEvent')
+	self:RegisterEvent('UPDATE_SHAPESHIFT_COOLDOWN', 'OnEvent')
+	self:RegisterEvent('UPDATE_SHAPESHIFT_FORM', 'OnEvent')
+	self:RegisterEvent('UPDATE_INVENTORY_ALERTS', 'OnEvent')
+	self:RegisterEvent('ACTIONBAR_PAGE_CHANGED', 'OnEvent')
+end
+
+function StanceBarController:OnDisable()
+	self:UnregisterAllEvents()
+end
+
+function StanceBarController:OnEvent(event, ...)
+	if not self.bar then return end
+	
+	if event == 'PLAYER_ENTERING_WORLD' or event == 'UPDATE_SHAPESHIFT_FORMS' then
+		self.bar:UpdateNumForms()
+	end
+	
+	self.bar:UpdateForms()
 end

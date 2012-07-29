@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local BagBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.BagBar = BagBar
+local BagBar = Addon:NewFrameClass('Frame', Addon.ButtonBar)
 
 BagBar.BAR_ATTRIBUTES = Addon.Utility:ConcatArrays(Addon.ButtonBar.BAR_ATTRIBUTES, { 'oneBag' })
 
@@ -89,4 +89,37 @@ function BagBar:SetOneBag(enable)
 	self:Set('oneBag', enable)
 	bar:Execute([[ self:RunAttribute('refreshButtons') ]])
 	bar:Execute([[ self:RunAttribute('layout') ]])
+end
+
+--[[
+	Bag Bar Controller
+--]]
+
+local BagBarController = Addon:NewModule('BagBar', 'AceEvent-3.0', 'AceConsole-3.0')
+
+function BagBarController:OnEnable()
+	self.bar = BagBar:New{
+		default = {
+			enable = true,
+			show = true,
+			alpha = 1,
+			scale = 1,
+			point = 'BOTTOMRIGHT;0;0',
+			anchor = false,
+			columns = 10,
+			padding = 0,
+			spacing = 0,
+			padW = 0,
+			padH = 0,
+			oneBag = false,
+			showKeyring = true,
+		},		
+		alt = {
+			oneBag = true,
+			showKeyring = false,
+		}
+	}
+end
+
+function BagBarController:OnDisable()
 end

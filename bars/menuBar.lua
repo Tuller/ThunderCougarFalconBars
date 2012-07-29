@@ -4,7 +4,7 @@
 --]]
 
 local AddonName, Addon = ...
-local MenuBar = Addon:NewFrameClass('Frame', Addon.ButtonBar); Addon.MenuBar = MenuBar
+local MenuBar = Addon:NewFrameClass('Frame', Addon.ButtonBar)
 
 function MenuBar:New(settings)
 	return MenuBar.Super('New', self, 'menu', settings)
@@ -30,4 +30,33 @@ function MenuBar:Create(frameId)
 	loadButtons(bar, _G['MainMenuBarArtFrame']:GetChildren())
 	
 	return bar
+end
+
+
+--[[
+	Menu Bar Controller
+--]]
+
+local MenuBarController = Addon:NewModule('MenuBar', 'AceEvent-3.0', 'AceConsole-3.0')
+
+function MenuBarController:OnEnable()
+	self.bar = MenuBar:New{
+		default = {
+			enable = true,
+			show = true,
+			alpha = 1,
+			scale = 1,
+			point = 'BOTTOMRIGHT;-200;0',
+			anchor = false,
+			columns = 12,
+			padding = 0,
+			spacing = 0,
+			padW = 0,
+			padH = 0,
+		},		
+	}
+end
+
+function MenuBarController:OnDisable()
+
 end

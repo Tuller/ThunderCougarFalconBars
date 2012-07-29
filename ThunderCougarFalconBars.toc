@@ -8,5 +8,5 @@
 embeds.xml
 localization.xml
 core.xml
-bars.xml
 ThunderCougarFalconBars.lua
+bars.xml
