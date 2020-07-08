@@ -1,1 +1,1 @@
-ThunderCougarFalconBars is a state based action bar addon
+ThunderCougarFalconBars is a bunch of experimental work to see how dynamic I could make an action bar addon with secure templates. I don't really do much with this project, but sometimes reference it when designing new things.
